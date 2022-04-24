@@ -1,88 +1,65 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express')
+const app = express()
+const port = process.env.PORT || 3000
+const bodyParser = require("body-parser")
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const res = require('express/lib/response');
+app.use(bodyParser.json())
 
-var app = express();
+let database = []
+let id = 0
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack)
-  res.status(500).send('Something broke!')
+app.all('*', (req,res,next) => {
+  const method = req.method
+  console.log(`Methode ${method} angeroepen`)
+  next()
 })
 
-app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!")
+app.post('/api/movie', (req,res) => {
+  let movie = req.body
+  id++
+  movie = {
+    id,
+    ...movie
+  }
+ database.push(movie)
+ console.log(database)
+ res.status(201).json({
+   status: 201,
+   result: movie
+ })
 })
 
-module.exports = app;
-
-// set responds
-app.get("/user", (req,res) => {
-  console.log(req)
-  res.send("Got a GET all users request")
+app.get('/api/movie', (req,res) => {
+  res.status(202).json({
+    status: 202,
+    result: database
+  })
 })
 
-app.get("/user/{id}", (req,res) => {
-  console.log(req)
-  res.send("Got a GET an user request")
+app.get('/api/movie/:id', (req, res) => {
+  const id = req.params.id
+  let movie = database.filter((item) => item.id == id)
+  if(movie.length > 0) {
+    console.log(movie)
+    res.status(200).json({
+      status: 200,
+      result: movie
+    })
+  } else {
+    res.status(404).json({
+      status: 404,
+      result: `Movie with ID ${id} not found`
+    })
+  }
 })
 
-app.post("/", (req,res) => {
-  console.log(req)
-  res.send("Got a POST request")
-})
+app.all('*',(req,res) => {
+  res.status(404).json({
+    status:404,
+    result: "End-point not found"
+  })
+}) 
 
-app.put("/user", (req,res) => {
-  console.log(req)
-  res.send("Got a PUT request as /user")
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
 })
-
-app.delete("/user/{id}", (req,res) => {
-  console.log(req)
-  res.send("Got a DELETE request as /user")
-})
-
-app.put("/api/user", (req,res) => {
-  console.log(req)
-  res.send("Got a Create user request")
-})
-
-// serving static files in express
-express.static(root, [options])
-app.use(express.static('public'))
-app.use(express.static('files'))
-app.use("/static", express.static('public'))
