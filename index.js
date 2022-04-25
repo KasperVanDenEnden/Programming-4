@@ -12,7 +12,6 @@ let id = 0;
 let userId = 0;
 let profile = 0;
 
-
 app.all("*", (req, res, next) => {
   const method = req.method;
   console.log(`Methode ${method} angeroepen`);
@@ -70,7 +69,6 @@ app.post("/api/aut/login", (req, res) => {
   // let user = users.filter(
   //   (item) => item.password == password && item.emailAdress == emailAdress
   // );
-
   // if (user.length > 0) {
   //   profile = user.id;
   //   res.status(201).json({
@@ -88,42 +86,28 @@ app.post("/api/aut/login", (req, res) => {
 // create user
 app.post("/api/user", (req, res) => {
   let user = req.body;
-  console.log(user)
-  let email = req.params.emailAdress;
-  let check = true;
-  
+  let email = req.body.emailAdress;
+  let check = users.filter((item) => item.emailAdress == email);
 
-  console.log(check)
-    for (i = 0; i < users.length; i++) {
-      if (i.emailAdress == email) {
-        check = false
-      } 
-      check = true
-   }
-  console.log(check)
+  if (check.length == 0) {
+    userId++;
+    user = {
+      userId,
+      ...user,
+    };
+    users.push(user);
+    console.log(users.length);
 
-  if (check) {
-   
-      userId++;
-      user = {
-        userId,
-        ...user,
-      };
-      users.push(user);
-      console.log(users.length);
-
-      res.status(201).json({
-        status: 201,
-        result: `User is added!`,
-      });
-
+    res.status(201).json({
+      status: 201,
+      result: `User is added!`,
+    });
   } else {
-
     res.status(401).json({
       status: 401,
       result: `Email is not unique!`,
     });
-    check = true
+    check = true;
   }
 });
 
@@ -153,8 +137,8 @@ app.get("/api/user/profile", (req, res) => {
   } else {
     res.status(404).json({
       status: 404,
-      result: "This function is not realised yet!"
-     // result: `No profile was found! Make sure you are logged in!`,
+      result: "This function is not realised yet!",
+      // result: `No profile was found! Make sure you are logged in!`,
     });
   }
 });
@@ -162,7 +146,7 @@ app.get("/api/user/profile", (req, res) => {
 // get user by id
 app.get("/api/user/:id", (req, res) => {
   const id = req.params.id;
-  console.log(id)
+  console.log(id);
   let user = users.filter((item) => item.userId == id);
   if (user.length > 0) {
     res.status(200).json({
@@ -180,8 +164,12 @@ app.get("/api/user/:id", (req, res) => {
 // update user by id
 app.put("/api/user/:id", (req, res) => {
   const id = req.params.id;
-  let user = users.filter((item) => item.id == id);
-  if (user.length > 0) {
+  const body = req.body;
+  let check = users.filter((item) => item.userId == id);
+
+  if (check.length > 0) {
+    let index = users.findIndex((item) => item.userId == id);
+    users[index] = body;
     res.status(201).json({
       status: 201,
       result: `Updated user with ID ${id}`,
@@ -197,24 +185,21 @@ app.put("/api/user/:id", (req, res) => {
 // delete user by id
 app.delete("/api/user/:id", (req, res) => {
   const id = req.params.id;
-  let user = users.filter((item) => item.userId == id );
-  if (user.length > 0) {
-    users = users.filter((item) => item.itemId !== id)
+  let check = users.filter((item) => item.userId == id);
+  console.log(check.length);
+
+  if (check.length > 0) {
+    users = users.filter((item) => item.userId === id);
     res.status(201).json({
-      status: 201,
-      result: `User with userId ${id} has been deleted`
-    })
+      status: 255,
+      result: `User with userId ${id} has been deleted`,
+    });
   } else {
     res.status(404).json({
       status: 404,
-      result: `User with userID ${id} not found`,
+      result: `No user with userID ${id} was found`,
     });
   }
-
-
-
-
-  
 });
 
 // not found End-point
