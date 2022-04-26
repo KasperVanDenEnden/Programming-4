@@ -17,11 +17,12 @@ let controller = {
             assert(typeof phoneNumber === 'number', 'Phonenumber must be a number')
             next()
         } catch(err){
-                console.log(err)
-                res.status(400).json({
-                    statusbar: 400,
-                    result: err.message,
-                })
+            const error = { 
+                status: 400,
+                result: err.message
+            }
+                
+            next(error)
         }
     },
 
