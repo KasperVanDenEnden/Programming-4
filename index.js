@@ -7,10 +7,8 @@ const userRouter = require('./src/routes/user.routes')
 
 app.use(bodyParser.json());
 
-
 let database = [];
 let id = 0;
-
 
 app.all("*", (req, res, next) => {
   const method = req.method;
@@ -62,8 +60,6 @@ app.get("/api/meal/:id", (req, res) => {
     });
   }
 });
-
-
 
 // not found End-point
 app.all("*", (req, res) => {
