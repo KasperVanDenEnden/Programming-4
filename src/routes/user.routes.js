@@ -9,7 +9,7 @@ const userController = require('../controllers/user.controller')
     router.post("/api/aut/login", userController.login);
     
     // create user
-    router.post("/api/user", userController.addUser());
+    router.post("/api/user", userController.validateUser, userController.addUser);
     
     // get all users
     router.get("/api/user", userController.getAllUsers);
