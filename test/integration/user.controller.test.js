@@ -14,7 +14,7 @@ describe('UC-201 Manage users ', () => {
             done()
         })
 
-        it('TC-201 When a required input is missing, a valid error should be returned',() => {
+        it('TC-201 When a required input is missing, a valid error should be returned',(done) => {
             chai
             .request(server)
             .post('/api/user')
@@ -28,8 +28,9 @@ describe('UC-201 Manage users ', () => {
                 let {status,result} = res.body
                 status.should.equals(400)
                 result.should.be.a('string').that.equals('Firstname must be a string')
+                done()
             })
-            done()
+           it('TC-202 Other test examlpe', ( ) => {})
         })
     })
     
