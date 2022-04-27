@@ -3,14 +3,14 @@ const assert = require('assert')
 
 
 let users = [];
-let userId = 0;
+let id = 0;
 let profile = 0;
 
 let controller = {
     validateUser:(req,res,next) => {
         
         let user = req.body
-        let {userId, firstName, lastName, emailAdress, phoneNumber, ...other} = user
+        let {id, firstName, lastName, emailAdress, phoneNumber, ...other} = user
         try {
             assert(typeof firstName === 'string', 'Firstname must be a string')
             assert(typeof lastName === 'string', 'Lastname must be a string')
@@ -52,9 +52,9 @@ let controller = {
         let check = users.filter((item) => item.emailAdress == email);
       
         if (check.length == 0) {
-          userId++;
+          id++;
           user = {
-            userId,
+            id,
             ...user,
           };
           users.push(user);
@@ -88,7 +88,7 @@ let controller = {
     getUserById:(req,res) => {
         const id = req.params.id;
     console.log(id);
-    let user = users.filter((item) => item.userId == id);
+    let user = users.filter((item) => item.id == id);
     if (user.length > 0) {
       res.status(200).json({
         status: 200,
@@ -104,10 +104,10 @@ let controller = {
     updateUser:(req,res) => {
         const id = req.params.id;
     const body = req.body;
-    let check = users.filter((item) => item.userId == id);
+    let check = users.filter((item) => item.id == id);
   
     if (check.length > 0) {
-      let index = users.findIndex((item) => item.userId == id);
+      let index = users.findIndex((item) => item.id == id);
       users[index] = body;
       res.status(201).json({
         status: 201,
@@ -122,19 +122,19 @@ let controller = {
     },
     deleteUser:(req,res) => {
         const id = req.params.id;
-    let check = users.filter((item) => item.userId == id);
+    let check = users.filter((item) => item.id == id);
     console.log(check.length);
   
     if (check.length > 0) {
-      users = users.filter((item) => item.userId === id);
+      users = users.filter((item) => item.id === id);
       res.status(201).json({
         status: 255,
-        result: `User with userId ${id} has been deleted`,
+        result: `User with id ${id} has been deleted`,
       });
     } else {
       res.status(404).json({
         status: 404,
-        result: `No user with userID ${id} was found`,
+        result: `No user with id ${id} was found`,
       });
     }
     },
