@@ -22,7 +22,6 @@ describe('UC-301 create meal /api/meal', () => {
     })
 })
 
-
 // UC-302
 describe('UC-302 update meal /api/meal/:id', () => {
     describe('TC-302-1 required field is missing', () => {
@@ -105,7 +104,6 @@ describe('UC-401 Sign up for meal /api/meal/:id/participate', () => {
 
 })
 
-
 // UC-402
 describe('UC-402 Sign out for meal /api/meal/:id/unparticipate', () => {
     describe('TC-402-1 Not logged in', () => {
@@ -126,7 +124,6 @@ describe('UC-402 Sign out for meal /api/meal/:id/unparticipate', () => {
 
 })
 
-
 // UC-403
 describe('UC-403 Request list of participants /api/meal/:id/participants', () => {
     describe('TC-403-1 Not logged in', () => {
@@ -142,7 +139,6 @@ describe('UC-403 Request list of participants /api/meal/:id/participants', () =>
     })
 
 })
-
 
 // UC-404
 describe('UC-404 Request details of participant /api/user/:id  || /api/meal/:id/participants/:id', () => {

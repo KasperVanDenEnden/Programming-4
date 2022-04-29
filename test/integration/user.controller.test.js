@@ -7,7 +7,6 @@ let database = [];
 chai.should()
 chai.use(chaiHttp)
 
-
 // UC-101
 describe('UC-101 login /api/aut/login', () => {
     describe('TC-101-1 required field is missing', () => {
@@ -31,7 +30,6 @@ describe('UC-101 login /api/aut/login', () => {
     })
 
 })
-
 
 // UC-201
 describe('UC-201 Manage users /api/user ', () => {
