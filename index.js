@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+require('dotenv').config()
+const port = process.env.PORT
 const bodyParser = require("body-parser");
 const res = require("express/lib/response");
 const userRouter = require('./src/routes/user.routes')
@@ -20,11 +21,10 @@ app.use(userRouter)
 // meal routes
 app.use(mealRouter)
 
-
 // not found End-point
 app.all("*", (req, res) => {
   res.status(404).json({
-    status: 404,
+    status: 401,
     result: "End-point not found",
   });
 });
