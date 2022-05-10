@@ -1,7 +1,7 @@
 const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
-const chai = require("chai");
+
 
 let users = [];
 let id = 0;
