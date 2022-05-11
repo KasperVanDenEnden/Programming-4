@@ -150,7 +150,7 @@ let controller = {
     dbconnection.getConnection((err, connection) => {
       if (err) throw err;
 
-      connection.query("SELECT * FROM USER", (err, result, fields) => {
+      connection.query("SELECT * FROM user", (err, result, fields) => {
         if (err) throw err;
         connection.release();
 
