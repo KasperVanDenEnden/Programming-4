@@ -1,7 +1,8 @@
+
 const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
-const chai = require("chai");
+
 
 let users = [];
 let id = 0;
@@ -18,7 +19,7 @@ let controller = {
     } catch (err) {
       const error = {
         status: 400,
-        message: err.message,
+        result: err.message,
       };
       next(error);
     }
@@ -49,7 +50,7 @@ let controller = {
     } catch (err) {
       const error = {
         status: 400,
-        message: err.message,
+        result: err.message,
       };
 
       next(error);
@@ -64,7 +65,7 @@ let controller = {
     } else {
       const error = {
         status: 400,
-        message: "Id input can only contain numbers",
+        result: "Id input can only contain numbers",
       };
       next(error);
     }
@@ -120,7 +121,7 @@ let controller = {
     } else {
       const error = {
         status: 400,
-        message: "No valid phonenumber format",
+        result: "No valid phonenumber format",
       };
 
       next(error);
@@ -132,7 +133,7 @@ let controller = {
     } else {
       let error = {
         status: 400,
-        message: users
+        result: users
       }
       next(error)
     }
@@ -167,6 +168,20 @@ let controller = {
     // }
   },
   addUser: (req, res) => {
+
+  //   database.addUser(req.body,(error,result) =>{
+  //   if (error) {
+  //     console.log(`index.js : ${error}`)
+  //     res.status(409).json({
+  //       status:409,
+  //       error: `Email in not unique!`
+  //     })
+
+  //   }
+  // })
+
+
+
     let user = req.body;
     let email = req.body.emailAdress;
     let check = users.filter((item) => item.emailAdress == email);
@@ -182,12 +197,12 @@ let controller = {
 
       res.status(201).json({
         status: 201,
-        message: `User is added!`
+        result: `User is added!`
       });
     } else {
       res.status(409).json({
         status: 409,
-        message: `Email is not unique!`
+        result: `Email is not unique!`
       });
       check = true;
     }
@@ -200,7 +215,7 @@ let controller = {
     } catch (err) {
       const error = {
         status: 400,
-        message: err.message,
+        result: err.message,
       };
     }
 
@@ -229,12 +244,12 @@ let controller = {
 
       res.status(201).json({
         status: 201,
-        message: mapped,
+        result: mapped,
       });
     } else {
       res.status(200).json({
         status: 200,
-        message: "No users exists yet",
+        result: "No users exists yet",
       });
     }
   },
@@ -269,33 +284,68 @@ let controller = {
       res.status(200).json({
         status: 200,
         result: mapped,
-        message: `User with ID ${id} found`,
       });
     } else {
       res.status(404).json({
         status: 404,
-        message: `User with ID ${id} not found`,
+        result: `User with ID ${id} not found`,
       });
     }
   },
   updateUser: (req, res) => {
-    const id = req.params.id;
-    const body = req.body;
-    let check = users.filter((item) => item.id == id);
+    dbconnection.getConnection((err,connection) => {
+        if (err) throw err
+        const id = Number(req.params.id)
+        
+        if (isNaN(id)) {
+          return next()
+        }
+      
+        const newUser = req.body
 
-    if (check.length > 0) {
-      let index = users.findIndex((item) => item.id == id);
-      users[index] = body;
-      res.status(200).json({
-        status: 200,
-        message: `Updated user with ID ${id}`,
-      });
-    } else {
-      res.status(400).json({
-        status: 400,
-        message: `User with ID ${id} not found`,
-      });
-    }
+        connection.query("SELECT * FROM USER WHERE id = ?", id, (err,result,fields) =>{
+          if (err) throw err
+
+          const oldUser = result[0]
+          if (oldUser) {
+
+            connection.query("SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ? and id <> ?" [newUser.emailAdress, id], (err, result, fields) => {
+              if (err) throw err
+
+              if (result[0].count === 1) {
+                return next({
+                  status: 409,
+                  result: "Email is not unique!"
+                })
+              } else {
+                const user = {
+                  ...oldUser,
+                  ...newUser
+                  
+                }
+                const { firstName, lastName, emailAdress, phoneNumber, postcode, password, street, city} = user
+
+                connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, phoneNumber =?, postcode = ?, password = ?, street = ?, city = ? WHERE id = ?", [firstName, lastName, emailAdress, phoneNumber, postcode, password, street, city, id], (err, result, fields) => {
+                  if (err) throw err
+
+                  connection.release()
+
+                  res.status(200).json({
+                    status: 200,
+                    result: user
+                  })
+                  res.end()
+                })
+              }
+            }) 
+          } else {
+            return next({
+              status: 400,
+              result: `User with ID ${id} not found`
+            })
+          }
+        })
+    })
   },
   deleteUser: (req, res) => {
     const id = req.params.id;
@@ -305,12 +355,12 @@ let controller = {
       users = users.filter((item) => item.id === id);
       res.status(200).json({
         status: 200,
-        message: `User with id ${id} has been deleted`,
+        result: `User with id ${id} has been deleted`,
       });
     } else {
       res.status(400).json({
         status: 400,
-        message: `No user with id ${id} was found`,
+        result: `No user with id ${id} was found`,
       });
     }
   },
@@ -319,12 +369,12 @@ let controller = {
     if (user.length > 0) {
       res.status(201).json({
         status: 201,
-        message: user,
+        result: user,
       });
     } else {
       res.status(404).json({
         status: 404,
-        message: "This function is not realised yet!",
+        result: "This function is not realised yet!",
         // result: `No profile was found! Make sure you are logged in!`,
       });
     }
