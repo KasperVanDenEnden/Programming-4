@@ -1,10 +1,6 @@
-const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
 
-let users = [];
-let id = 0;
-let profile = 0;
 
 let controller = {
   validateLogin: (req, res, next) => {
@@ -41,13 +37,6 @@ let controller = {
       assert(typeof password === "string", "Password must be a string");
       // assert(typeof phoneNumber === "string", "Phonenumber must be a string");
 
-      assert(typeof firstName === "string", "First Name must be a string.");
-      assert(typeof lastName === "string", "Last Name must be a string.");
-      assert(typeof street === "string", "Street must be a string.");
-      assert(typeof city === "string", "City Name must be a string.");
-      assert(typeof password === "string", "Password must be a string.");
-      assert(typeof emailAdress === "string", "Email Address must be a string.");
-      
       next();
     } catch (err) {
       const error = {
@@ -61,15 +50,9 @@ let controller = {
   validateUserUpdate: (req, res, next) => {
     let user = req.body;
     let {
-      id,
-      firstName,
-      lastName,
-      street,
-      city,
-      postcode,
+
       emailAdress,
-      password,
-      phoneNumber,
+
     } = user;
     try {
       assert(typeof emailAdress === "string", "Email must be a string");
