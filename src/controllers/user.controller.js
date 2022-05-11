@@ -346,7 +346,6 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 0) {
-            // error email bestaat al
             res.status(400).json({
               status: 400,
               message: "User does not exist",
