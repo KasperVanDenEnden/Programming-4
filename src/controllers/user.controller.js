@@ -24,15 +24,12 @@ let controller = {
   validateUser: (req, res, next) => {
     let user = req.body;
     let {
-      id,
       firstName,
       lastName,
       street,
       city,
-      postcode,
       emailAdress,
       password,
-      phoneNumber,
     } = user;
     try {
       assert(typeof firstName === "string", "Firstname must be a string");
@@ -43,6 +40,14 @@ let controller = {
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
       // assert(typeof phoneNumber === "string", "Phonenumber must be a string");
+
+      assert(typeof firstName === "string", "First Name must be a string.");
+      assert(typeof lastName === "string", "Last Name must be a string.");
+      assert(typeof street === "string", "Street must be a string.");
+      assert(typeof city === "string", "City Name must be a string.");
+      assert(typeof password === "string", "Password must be a string.");
+      assert(typeof emailAdress === "string", "Email Address must be a string.");
+      
       next();
     } catch (err) {
       const error = {
@@ -74,73 +79,6 @@ let controller = {
       const error = {
         status: 400,
         message: err.message,
-      };
-
-      next(error);
-    }
-  },
-  validateIdInput: (req, res, next) => {
-    let param = req.params.id;
-    let regex = /^[0-9]{1,}$/;
-    if (regex.test(param)) {
-      next();
-    } else {
-      const error = {
-        status: 400,
-        message: "Id input can only contain numbers",
-      };
-      next(error);
-    }
-  },
-
-  regexpPostcode: (req, res, next) => {
-    let postcode = req.body.postcode;
-
-    let regex =
-      /^[0-9]{4}[a-z]{2}/ ||
-      /^[0-9]{4}\s[a-z]{2}/ ||
-      /^[0-9]{4}[A-Z]{2}/ ||
-      /^[0-9]{4}\s[A-Z]{2}/;
-
-    if (regex.test(postcode)) {
-      next();
-    } else {
-      const error = {
-        status: 400,
-        result: "No valid postcode format",
-      };
-      next(error);
-    }
-  },
-  regexpEmail: (req, res, next) => {
-    let email = req.body.emailAdress;
-
-    let regex =
-      /^[a-z]{1,}.[a-z]{1,}@[a-z]{1,}.[a-z]{1,}/ ||
-      /^[a-z]{1,}@[a-z]{1,}.[a-z]{1,}/;
-
-    if (regex.test(email)) {
-      next();
-    } else {
-      const error = {
-        status: 400,
-        result: "No valid email format",
-      };
-
-      next(error);
-    }
-  },
-  regexpPhoneNumber: (req, res, next) => {
-    let phoneNumber = req.body.phoneNumber;
-
-    let regex = /^[0-9]{2}\s[0-9]{8}/;
-
-    if (regex.test(phoneNumber)) {
-      next();
-    } else {
-      const error = {
-        status: 400,
-        result: "No valid phonenumber format",
       };
 
       next(error);
