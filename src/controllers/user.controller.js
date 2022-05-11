@@ -217,7 +217,6 @@ let controller = {
       
       connection.query("SELECT COUNT(id) as count FROM user WHERE id = ?", [id], (err, result, fields) => {
           if (err) throw err;
-          console.log(result[0].count)
 
           if (result[0].count === 0) {
             res.status(400).json({
@@ -225,17 +224,8 @@ let controller = {
               message: "User does not exist",
             });
           } else {
-            let phoneNumber
-            connection.query("SELECT phoneNumber FROM user WHERE id = ?", [id], (err, result) => {
-              if (err) throw err;
-
-              phoneNumber = result.phoneNumber
-              console.log(phoneNumber)
-            })
-
-
             let {firstName, lastName, emailAdress, password, city, street} = newUser
-            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,phoneNumber,id], (err,result,fields)=> {
+            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
 
               if (err) throw err;
 
@@ -243,9 +233,14 @@ let controller = {
 
                   connection.release()
 
+                  const user = {
+                    ...result[0],
+                    ...req.body
+                  }
+
                   res.status(200).json({
                     status: 200,
-                    result: result[0]
+                    result:user
                   })
 
                   res.end()
