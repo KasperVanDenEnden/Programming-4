@@ -225,8 +225,9 @@ let controller = {
               message: "User does not exist",
             });
           } else {
+            let phoneNumber = result.phoneNumber
             let {firstName, lastName, emailAdress, password, city, street} = newUser
-            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = 0612345677 WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
+            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,phoneNumber,id], (err,result,fields)=> {
 
               if (err) throw err;
 
