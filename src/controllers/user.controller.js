@@ -224,19 +224,21 @@ let controller = {
               message: "User does not exist",
             });
           } else {
-            let {firstName, lastName, emailAdress, password, city, street} = newUser
-            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
-
+            connection.query("SELECT * FROM user WHERE id = ?", [id], (err, result, fields) => {
               if (err) throw err;
 
-                connection.query("SELECT * FROM user WHERE id = ?", [id], (err, result, fields) => {
+            const user = {
+              ...result[0],
+              ...newUser
+            }
+
+            let {firstName, lastName, emailAdress, password, city, street, phoneNumber} = user
+
+
+            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city, phoneNumber,id], (err,result,fields)=> {
+              if (err) throw err;
 
                   connection.release()
-
-                  const user = {
-                    ...result[0],
-                    ...req.body
-                  }
 
                   res.status(200).json({
                     status: 200,
