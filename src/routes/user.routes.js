@@ -9,7 +9,7 @@ const userController = require('../controllers/user.controller')
     router.post("/api/aut/login", userController.login);
     
     // create user
-    router.post("/api/user", userController.validateUser, userController.regexpEmail, userController.regexpPhoneNumber, userController.regexpPostcode, userController.addUser);
+    router.post("/api/user", userController.validateUser, userController.addUser);
     
     // get all users
     router.get("/api/user", userController.getAllUsers);
@@ -18,7 +18,7 @@ const userController = require('../controllers/user.controller')
     router.get("/api/user/:id", userController.validateIdInput, userController.getUserById);
     
     // update user by id
-    router.put("/api/user/:id", userController.validateIdInput, userController.regexpEmail, userController.regexpPhoneNumber, userController.regexpPostcode , userController.updateUser);
+    router.put("/api/user/:id", userController.validateUserUpdate, userController.updateUser);
     
     // delete user by id
     router.delete("/api/user/:id", userController.validateIdInput, userController.deleteUser);

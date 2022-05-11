@@ -110,6 +110,7 @@ CREATE TABLE `user` (
   `emailAdress` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phoneNumber` varchar(255) DEFAULT '-',
+  `postcode` varchar(255) NOT NULL,
   `roles` set('admin','editor','guest') NOT NULL DEFAULT 'editor,guest',
   `street` varchar(255) NOT NULL,
   `city` varchar(255) NOT NULL,

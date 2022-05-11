@@ -2,11 +2,9 @@ const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
 
-
 let users = [];
 let id = 0;
 let profile = 0;
-
 
 let controller = {
   validateLogin: (req, res, next) => {
@@ -41,10 +39,10 @@ let controller = {
       assert(typeof lastName === "string", "Lastname must be a string");
       assert(typeof street === "string", "Street must be a string");
       assert(typeof city === "string", "City must be a string");
-      assert(typeof postcode === "string", 'Postcode must be a string')
+      // assert(typeof postcode === "string", 'Postcode must be a string')
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
-      assert(typeof phoneNumber === "string", "Phonenumber must be a string");
+      // assert(typeof phoneNumber === "string", "Phonenumber must be a string");
       next();
     } catch (err) {
       const error = {
@@ -55,7 +53,32 @@ let controller = {
       next(error);
     }
   },
+  validateUserUpdate: (req, res, next) => {
+    let user = req.body;
+    let {
+      id,
+      firstName,
+      lastName,
+      street,
+      city,
+      postcode,
+      emailAdress,
+      password,
+      phoneNumber,
+    } = user;
+    try {
+      assert(typeof emailAdress === "string", "Email must be a string");
 
+      next();
+    } catch (err) {
+      const error = {
+        status: 400,
+        message: err.message,
+      };
+
+      next(error);
+    }
+  },
   validateIdInput: (req, res, next) => {
     let param = req.params.id;
     let regex = /^[0-9]{1,}$/;
@@ -70,27 +93,25 @@ let controller = {
     }
   },
 
-  regexpPostcode: (req,res,next) => {
-    let postcode = req.body.postcode
+  regexpPostcode: (req, res, next) => {
+    let postcode = req.body.postcode;
 
-    let regex = 
-    /^[0-9]{4}[a-z]{2}/ ||
-    /^[0-9]{4}\s[a-z]{2}/ ||
-    /^[0-9]{4}[A-Z]{2}/ ||
-    /^[0-9]{4}\s[A-Z]{2}/;
+    let regex =
+      /^[0-9]{4}[a-z]{2}/ ||
+      /^[0-9]{4}\s[a-z]{2}/ ||
+      /^[0-9]{4}[A-Z]{2}/ ||
+      /^[0-9]{4}\s[A-Z]{2}/;
 
-    if (regex.test(postcode)){
-      next()
+    if (regex.test(postcode)) {
+      next();
     } else {
-      const error = { 
+      const error = {
         status: 400,
-        result: "No valid postcode format"
-      }
+        result: "No valid postcode format",
+      };
       next(error);
     }
   },
-
-
   regexpEmail: (req, res, next) => {
     let email = req.body.emailAdress;
 
@@ -109,7 +130,6 @@ let controller = {
       next(error);
     }
   },
-
   regexpPhoneNumber: (req, res, next) => {
     let phoneNumber = req.body.phoneNumber;
 
@@ -120,29 +140,17 @@ let controller = {
     } else {
       const error = {
         status: 400,
-        message: "No valid phonenumber format",
+        result: "No valid phonenumber format",
       };
 
       next(error);
     }
   },
-  databaseEmptyCheck: (req,res,next) => {
-    if (users.length > 0) {
-      next()
-    } else {
-      let error = {
-        status: 400,
-        message: users
-      }
-      next(error)
-    }
-
-  },
   // paths
   login: (req, res) => {
-    let privateKey = fs.readFileSync('../../private.pem', 'utf8')
-    let token = jwt.sign({"body" : "stuff"}, privateKey, {algorithm: 'HS256'})
-    res.send(token)
+    let privateKey = fs.readFileSync("../../private.pem", "utf8");
+    let token = jwt.sign({ body: "stuff" }, privateKey, { algorithm: "HS256" });
+    res.send(token);
 
     // const email = req.body.emailAdress;
     // const password = req.body.password;
@@ -151,9 +159,7 @@ let controller = {
     //   (item) => item.password == password && item.emailAdress == email
     // );
     // if (user.length > 0) {
-     
 
-      
     //   profile = user.id;
     //   res.status(201).json({
     //     status: 201,
@@ -167,170 +173,216 @@ let controller = {
     // }
   },
   addUser: (req, res) => {
-    let user = req.body;
-    let email = req.body.emailAdress;
-    let check = users.filter((item) => item.emailAdress == email);
+    dbconnection.getConnection((err, connection) => {
+      if (err) throw err;
 
-    if (check.length == 0) {
-      id++;
-      user = {
-        id,
-        isActive: true,
-        ...user,
-      };
-      users.push(user);
+      const { firstName, lastName, emailAdress, password, street, city } =
+        req.body;
 
-      res.status(201).json({
-        status: 201,
-        message: `User is added!`
-      });
-    } else {
-      res.status(409).json({
-        status: 409,
-        message: `Email is not unique!`
-      });
-      check = true;
-    }
+      connection.query(
+        "SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ?",
+        [emailAdress],
+        (err, result, fields) => {
+          if (err) throw err;
+
+          if (result[0].count === 1) {
+            // error email bestaat al
+            res.status(409).json({
+              status: 409,
+              message: "Email is not unique!",
+            });
+          } else {
+            connection.query(
+              "INSERT INTO user (firstName, lastName, street, city, emailAdress, password) VALUES (?,?,?,?,?,?)",
+              [firstName, lastName, street, city, emailAdress, password],
+              (err, result, fields) => {
+                if (err) throw err;
+
+                connection.query(
+                  "SELECT * FROM user WHERE emailAdress = ?",
+                  emailAdress,
+                  (err, result, fields) => {
+                    if (err) throw err;
+
+                    connection.release();
+
+                    if (result[0].isActive === 1) {
+                      result[0].isActive = true;
+                    } else {
+                      result[0].isActive = false;
+                    }
+
+                    res.status(201).json({
+                      status: 201,
+                      result: result[0],
+                    });
+
+                    res.end();
+                  }
+                );
+              }
+            );
+          }
+        }
+      );
+    });
   },
   getAllUsers: (req, res) => {
-    let size = users.length;
+    dbconnection.getConnection((err, connection) => {
+      if (err) throw err;
 
-    try {
-      assert(typeof users === "array", "Length of array is (" + size + ").");
-    } catch (err) {
-      const error = {
-        status: 400,
-        message: err.message,
-      };
-    }
+      connection.query("SELECT * FROM USER", (err, result, fields) => {
+        if (err) throw err;
+        connection.release();
 
-    if (users.length > 0) {
-      const mapped = users.map(
-        ({
-          id,
-          firstName,
-          lastName,
-          isActive,
-          emailAdress,
-          phoneNumber,
-          city,
-          postcode
-        }) => ({
-          id,
-          firstName,
-          lastName,
-          isActive,
-          emailAdress,
-          phoneNumber,
-          city,
-          postcode
-        })
-      );
-
-      res.status(201).json({
-        status: 201,
-        message: mapped,
+        res.status(200).json({
+          status: 200,
+          result: result,
+        });
       });
-    } else {
-      res.status(200).json({
-        status: 200,
-        message: "No users exists yet",
-      });
-    }
+    });
   },
   getUserById: (req, res) => {
     const id = req.params.id;
-    console.log(id);
 
-    let user = users.filter((item) => item.id == id);
-
-    if (user.length > 0) {
-      const mapped = user.map(
-        ({
-          id,
-          firstName,
-          lastName,
-          isActive,
-          emailAdress,
-          phoneNumber,
-          city,
-          postcode,
-        }) => ({
-          id,
-          firstName,
-          lastName,
-          isActive,
-          emailAdress,
-          phoneNumber,
-          city,
-          postcode,
-        })
-      );
-      res.status(200).json({
-        status: 200,
-        result: mapped,
-        message: `User with ID ${id} found`,
-      });
-    } else {
-      res.status(404).json({
-        status: 404,
-        message: `User with ID ${id} not found`,
-      });
+    if (isNaN(id)) {
+      return next();
     }
+
+    dbconnection.getConnection((err, connection) => {
+      if (err) throw err;
+
+      connection.query(
+        "SELECT COUNT(id) as count FROM user WHERE id = ?",
+        id,
+        (err, result, fields) => {
+          if (err) throw err;
+
+          if (result[0].count === 1) {
+            connection.query(
+              "SELECT * FROM user WHERE id = ?",
+              id,
+              (err, result, fields) => {
+                if (err) throw err;
+
+                connection.release();
+
+                res.status(200).json({
+                  status: 200,
+                  result: result[0],
+                });
+
+                res.end()
+              }
+            );
+          } else {
+            res.status(404).json({
+              status: 404,
+              message: "User does not exist",
+            });
+          }    
+        }
+      );
+    });
   },
   updateUser: (req, res) => {
     const id = req.params.id;
-    const body = req.body;
-    let check = users.filter((item) => item.id == id);
+    const newUser = req.body;
 
-    if (check.length > 0) {
-      let index = users.findIndex((item) => item.id == id);
-      users[index] = body;
-      res.status(200).json({
-        status: 200,
-        message: `Updated user with ID ${id}`,
-      });
-    } else {
-      res.status(400).json({
-        status: 400,
-        message: `User with ID ${id} not found`,
-      });
+    if (isNaN(id)) {
+      return next();
     }
+
+    dbconnection.getConnection((err, connection) => {
+      if (err) throw err;
+      
+      connection.query("SELECT COUNT(id) as count FROM user WHERE id = ?", [id], (err, result, fields) => {
+          if (err) throw err;
+          console.log(result[0].count)
+
+          if (result[0].count === 0) {
+            res.status(400).json({
+              status: 400,
+              message: "User does not exist",
+            });
+          } else {
+            let {firstName, lastName, emailAdress, password, city, street} = newUser
+            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
+
+              if (err) throw err;
+
+                connection.query("SELECT * FROM user WHERE id = ?", [id], (err, result, fields) => {
+
+                  connection.release()
+
+                  res.status(200).json({
+                    status: 200,
+                    result: result
+                  })
+
+                  res.end()
+
+                })
+            })
+          }
+        }
+      );
+    });
   },
   deleteUser: (req, res) => {
     const id = req.params.id;
-    let check = users.filter((item) => item.id == id);
 
-    if (check.length > 0) {
-      users = users.filter((item) => item.id === id);
-      res.status(200).json({
-        status: 200,
-        message: `User with id ${id} has been deleted`,
-      });
-    } else {
-      res.status(400).json({
-        status: 400,
-        message: `No user with id ${id} was found`,
-      });
+    if (isNaN(id)) {
+      return next();
     }
+
+    dbconnection.getConnection((err, connection) => {
+      if (err) throw err;
+
+      connection.query(
+        "SELECT COUNT(id) as count FROM user WHERE id = ?",
+        [id],
+        (err, result, fields) => {
+          if (err) throw err;
+
+          if (result[0].count === 0) {
+            // error email bestaat al
+            res.status(400).json({
+              status: 400,
+              message: "User does not exist",
+            });
+          } else {
+            connection.query(
+              "DELETE FROM user WHERE id = ?",
+              [id],
+              (err, result, fields) => {
+                if (err) throw err;
+
+                connection.release();
+
+                if (result.affectedRows === 1) {
+                  res.status(200).json({
+                    status: 200,
+                    message: "User has been deleted",
+                  });
+                }
+
+                res.end();
+              }
+            );
+          }
+        }
+      );
+    });
   },
+
   getProfile: (req, res) => {
-    let user = users.filter((item) => item.id == profile);
-    if (user.length > 0) {
-      res.status(201).json({
-        status: 201,
-        message: user,
-      });
-    } else {
-      res.status(404).json({
-        status: 404,
-        message: "This function is not realised yet!",
-        // result: `No profile was found! Make sure you are logged in!`,
-      });
-    }
+    res.status(200).json({
+      code: 200,
+      message: "This feature has not ben realised yet",
+    });
   },
 };
-
 
 
 module.exports = controller;
