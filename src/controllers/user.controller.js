@@ -32,10 +32,8 @@ let controller = {
       assert(typeof lastName === "string", "Lastname must be a string");
       assert(typeof street === "string", "Street must be a string");
       assert(typeof city === "string", "City must be a string");
-      // assert(typeof postcode === "string", 'Postcode must be a string')
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
-      // assert(typeof phoneNumber === "string", "Phonenumber must be a string");
 
       next();
     } catch (err) {
@@ -238,7 +236,7 @@ let controller = {
 
                   res.status(200).json({
                     status: 200,
-                    result: result
+                    result: result[0]
                   })
 
                   res.end()
