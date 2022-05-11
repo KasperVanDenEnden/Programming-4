@@ -226,7 +226,7 @@ let controller = {
             });
           } else {
             let {firstName, lastName, emailAdress, password, city, street} = newUser
-            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
+            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = 0612345677 WHERE id = ?", [firstName,lastName,emailAdress,password,street,city,id], (err,result,fields)=> {
 
               if (err) throw err;
 
