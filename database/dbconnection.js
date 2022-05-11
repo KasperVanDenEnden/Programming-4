@@ -1,8 +1,12 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 require("dotenv").config();
 
-const pool = mysql.createPool({
+const dbConfig = mysql.createPool({
   connectionLimit: 10,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  multipleStatements: true,
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
@@ -10,20 +14,20 @@ const pool = mysql.createPool({
   database: process.env.DB_DATABASE,
 });
 
-module.exports = pool
+console.log(dbConfig)
 
-pool.on("acquire", function (connection) {
-  console.log("Connection %d acquired", connection.threadId);
-});
+const pool = mysql.createPool(dbConfig)
 
-//   pool.on('connection', function (connection) {
-//     connection.query('SET SESSION auto_increment_increment=1')
-//   });
+pool.on('connection', function (connection) {
+  console.log(`Connected to database '${connection.config.database}'`)
+})
 
-//   pool.on('enqueue', function () {
-//     console.log('Waiting for available connection slot');
-//   });
+pool.on('acquire', function (connection) {
+  console.log('Connection %d acquired', connection.threadId)
+})
 
-  pool.on('release', function (connection) {
-    console.log('Connection %d released', connection.threadId);
-  });
+pool.on('release', function (connection) {
+  console.log('Connection %d released', connection.threadId)
+})
+
+module.exports = pool;
