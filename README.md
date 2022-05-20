@@ -92,23 +92,83 @@ Within a particular ecosystem, there may be a common way of installing things, s
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Als er vragen zijn over dit project, kunt u een vraag stellen via k.vandenenden1@student.avans.nl
 
 ## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Mogelijke toekomstige functionaliteiten
+```
+1. Maaltijden aanpassen
+2. Aanmelden voor een maaltijd
+3. Afmelden voor een maaltijd
+4. Lijst van deelnemers opvragen voor een maaltijd
+5. Details van een deelnemer opvragen
+```
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Dit is een schoolproject dat in mijn portfolio zal worden opgenomen. Daarom zal het niet mogelijk zijn door andere partijen aanpassingen te maken in dit project. Sta wel vrij om dit project te "forken" en er zelf mee aan de slag te gaan.
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Ik wil mijn docenten bedanken voor de goede uitleg, zodat het voor mij duidelijk was hoe ik dit schoolproject moest aanpakken.
 
 ## License
-For open source projects, say how it is licensed.
+See LICENSE.txt
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Ik kan geen garantie geven dat toekomstige functionaliteiten gerealiseerd zullen worden die op de roadmap staan. Dit heeft ermee te maken dat naast dit project andere projecten zullen lopen na de oplevering. Mocht het mogelijk zijn zal ik proberen er een hobbyprojectje van te maken.
+
+
+## API Reference
+
+[I'm a link to the Heroku deployed project](https://share-a-meal-2101787.herokuapp.com/)
+
+The references below, you can paste them behind te url the link above will lead you to.
+#### Create user and login
+
+```http
+1. POST /api/user
+2. GET /api/aut/login
+```
+| Nr    | Parameter | Type     | Description                | Locked with login |
+| :---- | :-------- | :------- | :------------------------- | :---- |
+| 1.    | `user` | `object` | **Required**. Needs all (valid) attributes in body | False |
+| 2.    | `user` | `object` | **Required**. Valid Email & Password in body | False  |
+
+
+#### Users
+
+```http
+  1. GET /api/user
+        a. ?firstName={string}&isActive{true|false}
+  2. GET /api/user/${id}
+  3. GET /api/user/profile
+  4. PUT /api/user/${id}
+  5. DELETE /api/user/${id}
+```
+
+|   Nr  | Parameter | Type     | Description                | Locked with login |
+| :---- | :-------- | :------- | :------------------------- | :---- |
+|  1.   | `firtName` | `string` | **Not Required**. A firstname | True  |
+|  1.   | `isActive` | `boolean` | **Not Required**. true or false | True  |
+|  2.   | `id` | `int` | **Required**. Your API key | True  |
+|  3.   | `Login` | `login` | **Required**. Login is required to find a profile | True  |
+|  4.   | `id` | `int` | **Required**. Id of user to update | True  |    
+|  5.   | `id` | `int` | **Required**. Id of meal to delete | True  |
+
+#### Meals
+
+```http
+  1. POST /api/meal
+  2. GET /api/meal
+  3. GET /api/meal/${id}
+  4. DELETE /api/meal
+  
+```
+
+|  Nr   | Parameter | Type     | Description                       | Locked with login |
+| :---- | :-------- | :------- | :-------------------------------- | :--- |
+|  1.   | `id`      | `object` | **Required**. Id of meal to create | True |
+|  3.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
+|  4.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
+
+
+
