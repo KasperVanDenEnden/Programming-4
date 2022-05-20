@@ -56,32 +56,6 @@ Depending on what you are making, it can be a good idea to include screenshots o
 ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Als er vragen zijn over dit project, kunt u een vraag stellen via k.vandenenden1@student.avans.nl
-
-## Roadmap
-Mogelijke toekomstige functionaliteiten
-```
-1. Maaltijden aanpassen
-2. Aanmelden voor een maaltijd
-3. Afmelden voor een maaltijd
-4. Lijst van deelnemers opvragen voor een maaltijd
-5. Details van een deelnemer opvragen
-```
-
-## Contributing
-Dit is een schoolproject dat in mijn portfolio zal worden opgenomen. Daarom zal het niet mogelijk zijn door andere partijen aanpassingen te maken in dit project. Sta wel vrij om dit project te "forken" en er zelf mee aan de slag te gaan.
-
-## Authors and acknowledgment
-Ik wil mijn docenten bedanken voor de goede uitleg, zodat het voor mij duidelijk was hoe ik dit schoolproject moest aanpakken.
-
-## License
-See LICENSE.txt
-
-## Project status
-Ik kan geen garantie geven dat toekomstige functionaliteiten gerealiseerd zullen worden die op de roadmap staan. Dit heeft ermee te maken dat naast dit project andere projecten zullen lopen na de oplevering. Mocht het mogelijk zijn zal ik proberen er een hobbyprojectje van te maken.
-
-
 ## API Reference
 
 [I'm a link to the Heroku deployed project](https://share-a-meal-2101787.herokuapp.com/)
@@ -134,6 +108,34 @@ The references below, you can paste them behind te url the link above will lead 
 |  1.   | `id`      | `object` | **Required**. Id of meal to create | True |
 |  3.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
 |  4.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
+
+
+## Support
+Als er vragen zijn over dit project, kunt u een vraag stellen via k.vandenenden1@student.avans.nl
+
+## Roadmap
+Mogelijke toekomstige functionaliteiten
+```
+1. Maaltijden aanpassen
+2. Aanmelden voor een maaltijd
+3. Afmelden voor een maaltijd
+4. Lijst van deelnemers opvragen voor een maaltijd
+5. Details van een deelnemer opvragen
+```
+
+## Contributing
+Dit is een schoolproject dat in mijn portfolio zal worden opgenomen. Daarom zal het niet mogelijk zijn door andere partijen aanpassingen te maken in dit project. Sta wel vrij om dit project te "forken" en er zelf mee aan de slag te gaan.
+
+## Authors and acknowledgment
+Ik wil mijn docenten bedanken voor de goede uitleg, zodat het voor mij duidelijk was hoe ik dit schoolproject moest aanpakken.
+
+## License
+See LICENSE.txt
+
+## Project status
+Ik kan geen garantie geven dat toekomstige functionaliteiten gerealiseerd zullen worden die op de roadmap staan. Dit heeft ermee te maken dat naast dit project andere projecten zullen lopen na de oplevering. Mocht het mogelijk zijn zal ik proberen er een hobbyprojectje van te maken.
+
+
 
 
 
