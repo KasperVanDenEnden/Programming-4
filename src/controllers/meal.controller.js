@@ -21,49 +21,70 @@ let controller = {
       result: meal,
     });
     },
-    getAllMeals:(req,res) => {
-      dbconnection.getConnection(function (err, connection) {
-        if (err) throw err; // not connected!
-      
-        // Use the connection
-        connection.query(
-          "SELECT id, name FROM meal",
-          function (error, results, fields) {
-            // When done with the connection, release it.
-            connection.release();
-      
-            // Handle error after the release.
-            if (error) throw error;
-      
-            // Don't use the connection here, it has been returned to the pool.
-            console.log("#results = ", results.length);
-            res.status(200).json({
-              status: 200,
-              results: results
-            })
-      
-            // pool.end((err) => {
-            //   console.log("pool was closed");
-            // });
-          }
-        );
+    getAllMeals:(req,res,next) => {
+      const queryParams = req.query
+      console.log(queryParams)
+      // const {} = queryParams
+      // console.log(` = ${} &  = ${}`  )
+
+      let queryString = `SELECT id, name FROM meal;`
+      console.log(queryString)
+
+    dbconnection.getConnection((err, connection) => {
+      if (err) {next(err)};
+      // if querystring is finished place it below instead of the hardcoded query
+      connection.query(queryString, (err, result, fields) => {
+        if (err) {next(err)};
+        connection.release();
+
+        res.status(200).json({
+          status: 200,
+          result: result,
+        });
       });
+    });
     },
     getMealById:(req,res) => {
         const id = req.params.id;
-        let meal = meals.filter((item) => item.id == id);
-        if (meal.length > 0) {
-          console.log(meal);
-          res.status(200).json({
-            status: 200,
-            result: meal,
-          });
-        } else {
-          res.status(404).json({
-            status: 404,
-            result: `Meal with ID ${id} not found`,
-          });
+        if (isNaN(id)) {
+          return next();
         }
+
+        dbconnection.getConnection((err,connection) =>{
+          if (err) throw err;
+
+          connection.query("SELECT COUNT(id) as count FROM meal WHERE id = ?", [id], (err,result,fields) =>{
+            if (err) throw err;
+            if (result[0].count === 1) {
+              connection.query( "SELECT * FROM meal WHERE id = ?", [id], (err, result, fields) => {
+                connection.release()
+
+                res.status(200).json({
+                  status: 200,
+                  result: result[0],
+                });
+
+                res.end()
+
+
+               })
+            } else {
+
+              res.status(404).json({
+                status: 404,
+                message: "Meal does not exist",
+              });
+
+            }
+          })
+
+
+
+
+        })
+
+
+
     }
 
 }

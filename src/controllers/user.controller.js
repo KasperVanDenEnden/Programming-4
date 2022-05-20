@@ -146,12 +146,37 @@ let controller = {
       );
     });
   },
-  getAllUsers: (req, res) => {
-    dbconnection.getConnection((err, connection) => {
-      if (err) throw err;
+  getAllUsers: (req, res, next) => {
+      const queryParams = req.query
+      console.log(queryParams)
 
-      connection.query("SELECT * FROM user", (err, result, fields) => {
-        if (err) throw err;
+      const{firstName, isActive} = queryParams
+      console.log(`firstName = ${firstName} isActive = ${isActive}` )
+      let queryString = 'SELECT * FROM user'
+      if (firstName || isActive) {
+        queryString += ' WHERE '
+        
+        if (firstName) {
+          queryString += `firstName LIKE '%${firstName}%'`
+        }
+        if (firstName && isActive) {
+          queryString += ` AND `
+        }
+        if (isActive) {
+          queryString += `isActive = ${isActive}`
+        }
+        
+      }
+      queryString += ';'
+      console.log(queryString)
+
+      // firstName = '%' + firstName + '%'
+
+    dbconnection.getConnection((err, connection) => {
+      if (err) {next(err)};
+      // if querystring is finished place it below instead of the hardcoded query
+      connection.query(queryString, (err, result, fields) => {
+        if (err) {next(err)};
         connection.release();
 
         res.status(200).json({
@@ -242,7 +267,7 @@ let controller = {
 
                   res.status(200).json({
                     status: 200,
-                    result:user
+                    result: user
                   })
 
                   res.end()
