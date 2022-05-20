@@ -71,25 +71,27 @@ let controller = {
     let token = jwt.sign({ body: "stuff" }, privateKey, { algorithm: "HS256" });
     res.send(token);
 
-    // const email = req.body.emailAdress;
-    // const password = req.body.password;
-    // console.log(email + ' | ' + password)
-    // let user = users.filter(
-    //   (item) => item.password == password && item.emailAdress == email
-    // );
-    // if (user.length > 0) {
+    const emailAdress = req.body.emailAdress
+    const password = req.body.password
 
-    //   profile = user.id;
-    //   res.status(201).json({
-    //     status: 201,
-    //     result: user,
-    //   });
-    // } else {
-    //   res.status(401).json({
-    //     status: 401,
-    //     result: "Wrong credentials",
-    //   });
-    // }
+    dbconnection.getConnection((er,connection) => {
+      if (err) throw err;
+
+      connection.query("SELECT COUNT(id) as count WHERE emailAdress = ? AND password = ?;", [emailAdress,password], (err,result,fields) => {
+        if (result[0].count === 0) {
+          res.status(400).json({
+            status: 400,
+            message: "This user does not exist or email/password is not valid",
+          });
+        } else {
+          let privateKey = fs.readFileSync("../../private.pem", "utf8");
+          let token = jwt.sign({ body: "stuff" }, privateKey, { algorithm: "HS256" });
+          res.send(token); 
+        }
+      })
+
+
+    })
   },
   addUser: (req, res) => {
     dbconnection.getConnection((err, connection) => {
@@ -198,14 +200,14 @@ let controller = {
 
       connection.query(
         "SELECT COUNT(id) as count FROM user WHERE id = ?",
-        id,
+        [id],
         (err, result, fields) => {
           if (err) throw err;
 
           if (result[0].count === 1) {
             connection.query(
               "SELECT * FROM user WHERE id = ?",
-              id,
+              [id],
               (err, result, fields) => {
                 if (err) throw err;
 

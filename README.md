@@ -51,13 +51,34 @@ When you're ready to make this README your own, just edit this file and use the 
 ## Suggestions for a good README
 Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
+# Share A Meal API
+
+![image](https://img.shields.io/github/downloads/KasperVanDenEnden/Programming-4/total?logo=GitHub&style=plastic) 
+![GitHub deployments](https://img.shields.io/github/deployments/KasperVanDenEnden/Programming-4/Heroku?label=Heroku&logo=Heroku&logoColor=%23E6E6FA)
+
+
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+In dit project is er gebruik gemaakt van javascript om een API gemaakt om "Gebruikers" en "Maaltijden" aan te maken. 
+Deze objecten worden opgeslagen in een online database en is het verder ook mogelijk deze objecten op te vragen, aan te passen en te verwijderen. Voor sommige functies moet een authenticatie plaatsvinden en moet je een "Gebruiker" zijn.
+Om de API online te zetten wordt via GitHub de API naar Heroku gedeployed. Via Postman is getest of de responses werken en via een online assertion tool is gekeken of de vereiste testcases slagen.
 
 ## Badges
+![image](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)
+![image](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![image](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
+![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![image](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![image](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white)
+![image](https://img.shields.io/badge/Mocha-8D6748?style=for-the-badge&logo=Mocha&logoColor=white)
+![image](https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white)
+![image](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![image](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+![image](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![image](https://img.shields.io/badge/Xampp-F37623?style=for-the-badge&logo=xampp&logoColor=white)
+![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+![image](https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E)
+![image](https://img.shields.io/badge/Visual_Studio-5C2D91?style=for-the-badge&logo=visual%20studio&logoColor=white)
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
 ## Visuals
@@ -70,23 +91,83 @@ Within a particular ecosystem, there may be a common way of installing things, s
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Als er vragen zijn over dit project, kunt u een vraag stellen via k.vandenenden1@student.avans.nl
 
 ## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Mogelijke toekomstige functionaliteiten
+```
+1. Maaltijden aanpassen
+2. Aanmelden voor een maaltijd
+3. Afmelden voor een maaltijd
+4. Lijst van deelnemers opvragen voor een maaltijd
+5. Details van een deelnemer opvragen
+```
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Dit is een schoolproject dat in mijn portfolio zal worden opgenomen. Daarom zal het niet mogelijk zijn door andere partijen aanpassingen te maken in dit project. Sta wel vrij om dit project te "forken" en er zelf mee aan de slag te gaan.
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Ik wil mijn docenten bedanken voor de goede uitleg, zodat het voor mij duidelijk was hoe ik dit schoolproject moest aanpakken.
 
 ## License
-For open source projects, say how it is licensed.
+See LICENSE.txt
 
 ## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Ik kan geen garantie geven dat toekomstige functionaliteiten gerealiseerd zullen worden die op de roadmap staan. Dit heeft ermee te maken dat naast dit project andere projecten zullen lopen na de oplevering. Mocht het mogelijk zijn zal ik proberen er een hobbyprojectje van te maken.
+
+
+## API Reference
+
+[I'm a link to the Heroku deployed project](https://share-a-meal-2101787.herokuapp.com/)
+
+The references below, you can paste them behind te url the link above will lead you to.
+#### Create user and login
+
+```http
+1. POST /api/user
+2. GET /api/aut/login
+```
+| Nr    | Parameter | Type     | Description                | Locked with login |
+| :---- | :-------- | :------- | :------------------------- | :---- |
+| 1.    | `user` | `object` | **Required**. Needs all (valid) attributes in body | False |
+| 2.    | `user` | `object` | **Required**. Valid Email & Password in body | False  |
+
+
+#### Users
+
+```http
+  1. GET /api/user
+        a. ?firstName={string}&isActive{true|false}
+  2. GET /api/user/${id}
+  3. GET /api/user/profile
+  4. PUT /api/user/${id}
+  5. DELETE /api/user/${id}
+```
+
+|   Nr  | Parameter | Type     | Description                | Locked with login |
+| :---- | :-------- | :------- | :------------------------- | :---- |
+|  1.   | `firtName` | `string` | **Not Required**. A firstname | True  |
+|  1.   | `isActive` | `boolean` | **Not Required**. true or false | True  |
+|  2.   | `id` | `int` | **Required**. Your API key | True  |
+|  3.   | `Login` | `login` | **Required**. Login is required to find a profile | True  |
+|  4.   | `id` | `int` | **Required**. Id of user to update | True  |    
+|  5.   | `id` | `int` | **Required**. Id of meal to delete | True  |
+
+#### Meals
+
+```http
+  1. POST /api/meal
+  2. GET /api/meal
+  3. GET /api/meal/${id}
+  4. DELETE /api/meal
+  
+```
+
+|  Nr   | Parameter | Type     | Description                       | Locked with login |
+| :---- | :-------- | :------- | :-------------------------------- | :--- |
+|  1.   | `id`      | `object` | **Required**. Id of meal to create | True |
+|  3.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
+|  4.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
+
+
+
