@@ -39,8 +39,8 @@ Depending on what you are making, it can be a good idea to include screenshots o
  3. Ga naar de settings van je Github repository en open de Environments.
  4. Maar een nieuwe environment aan genaamd "Heroku".
  5. Maak een secret aan genaam "HEROKU_API_KEY" en plak in de value je API key.
- 6.  Maak een secret aan genaam "HEROKU_USER_EMAIL" en zet daar je email van Heroku in de value
- 6.  Maak een secret aan genaam "HEROKU_USER_EMAIL" en zet daar je naam van de Heroku applicatie in de value
+ 6. Maak een secret aan genaam "HEROKU_USER_EMAIL" en zet daar je email van Heroku in de value
+ 6. Maak een secret aan genaam "HEROKU_APP_NAME" en zet daar je naam van de Heroku applicatie in de value
 ```
  LET OP!!: zorg ervoor dat actions zijn toegestaan in de settings van je repository
 
