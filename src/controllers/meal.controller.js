@@ -7,11 +7,21 @@ let id = 0;
 
 let controller = {
   validateMeal:(req,res,next) =>{
-    let meal = req.body
-    let {} = meal
+    let {isActive,isVega,isVegan,isToTakeHome,dateTime,price,imageUrl,cookId,name,description} = req.body
 
     try {
       assert(typeof name === "string", "Name must be a string");
+      assert(typeof description === "string", "Description must be a string");
+      assert(typeof dateTime === "string", "dateTime must be a string");
+      assert(typeof price === "string", "price must be a string");
+      assert(typeof imageUrl === "string", "imageUrl must be a string");
+      assert(typeof cookId === "number", "cookId must be a number");
+
+      assert(typeof isActive === 'boolean', "isActive must be a boolean")
+      assert(typeof isVega === 'boolean', "isVega must be a boolean")
+      assert(typeof isVegan === 'boolean', "isVegan must be a boolean")
+      assert(typeof isToTakeHome === 'boolean', "isToTakeHome must be a boolean")
+      
 
       next()
     } catch (err) {
@@ -22,8 +32,6 @@ let controller = {
       next(error)
     }
   },
-
-
   addMeal: (req, res) => {
     let meal = req.body;
     id++;
@@ -119,8 +127,8 @@ let controller = {
         [id],
         (err, result, fields) => {
           if (result[0].count === 0) {
-            res.status(400).json({
-              status: 400,
+            res.status(404).json({
+              status: 404,
               message: "Meal does not exist",
             });
           } else {

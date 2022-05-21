@@ -34,6 +34,8 @@ module.exports = {
                 datetime: new Date().toISOString(),
               });
             }
+
+
             if (rows) {
               // 2. Er was een resultaat, check het password.
               if (
@@ -66,10 +68,18 @@ module.exports = {
               } else {
                 logger.info("User not found or password invalid");
                 res.status(401).json({
+                  status: 401,
                   message: "User not found or password invalid",
                   datetime: new Date().toISOString(),
                 });
               }
+            } else {
+              logger.info("User does not exist");
+              res.status(404).json({
+                status: 404,
+                message: "User does not exist",
+                datetime: new Date().toISOString(),
+              });
             }
           }
         );
@@ -93,10 +103,10 @@ module.exports = {
       );
       next();
     } catch (ex) {
-      res.status(422).json({
-        status: 422,
+      res.status(400).json({
+        status: 400,
         message: ex.toString(),
-        datetime: new Date().toISOString(),
+       
       });
     }
   },

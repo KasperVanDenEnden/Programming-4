@@ -1,32 +1,11 @@
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
 
-
 let controller = {
-  validateLogin: (req, res, next) => {
-    let login = req.body;
-    let { emailAdress, password } = login;
-    try {
-      assert(typeof emailAdress === "string", "Email must be a string");
-      assert(typeof password === "string", "Password must be a string");
-    } catch (err) {
-      const error = {
-        status: 400,
-        message: err.message,
-      };
-      next(error);
-    }
-  },
+  
   validateUser: (req, res, next) => {
     let user = req.body;
-    let {
-      firstName,
-      lastName,
-      street,
-      city,
-      emailAdress,
-      password,
-    } = user;
+    let { firstName, lastName, street, city, emailAdress, password } = user;
     try {
       assert(typeof firstName === "string", "Firstname must be a string");
       assert(typeof lastName === "string", "Lastname must be a string");
@@ -47,13 +26,16 @@ let controller = {
   },
   validateUserUpdate: (req, res, next) => {
     let user = req.body;
-    let {
-
-      emailAdress,
-
-    } = user;
+    let { firstName, lastName, street, city, emailAdress, password, isActive } =
+      user;
     try {
+      assert(typeof firstName === "string", "Firstname must be a string");
+      assert(typeof lastName === "string", "Lastname must be a string");
+      assert(typeof street === "string", "Street must be a string");
+      assert(typeof city === "string", "City must be a string");
       assert(typeof emailAdress === "string", "Email must be a string");
+      assert(typeof password === "string", "Password must be a string");
+      assert(typeof isActive === "boolean", "isActive must be a boolean");
 
       next();
     } catch (err) {
@@ -65,33 +47,32 @@ let controller = {
       next(error);
     }
   },
-  // paths
-  login: (req, res) => {
-    let privateKey = fs.readFileSync("../../private.pem", "utf8");
-    let token = jwt.sign({ body: "stuff" }, privateKey, { algorithm: "HS256" });
-    res.send(token);
+  addUserRegex: (req, res, next) => {
+    const { emailAdress, password } = req.body;
 
-    const emailAdress = req.body.emailAdress
-    const password = req.body.password
+    let regexMail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    // password: eight characters including one uppercase letter, one lowercase letter, and one number or special character.
+    let regexPassword =
+      /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"/;
 
-    dbconnection.getConnection((er,connection) => {
-      if (err) throw err;
+    if (!regexMail.test(emailAdress)) {
+      const error = {
+        status: 400,
+        message: "Email is not a valid format",
+      };
+      next(error);
+    }
 
-      connection.query("SELECT COUNT(id) as count WHERE emailAdress = ? AND password = ?;", [emailAdress,password], (err,result,fields) => {
-        if (result[0].count === 0) {
-          res.status(400).json({
-            status: 400,
-            message: "This user does not exist or email/password is not valid",
-          });
-        } else {
-          let privateKey = fs.readFileSync("../../private.pem", "utf8");
-          let token = jwt.sign({ body: "stuff" }, privateKey, { algorithm: "HS256" });
-          res.send(token); 
-        }
-      })
+    if (!regexPassword.test(password)) {
+      const error = {
+        status: 400,
+        message:
+          "Make sure the password contains: eight characters including one uppercase letter, one lowercase letter, and one number or special character.",
+      };
+      next(error);
+    }
+    next()
 
-
-    })
   },
   addUser: (req, res) => {
     dbconnection.getConnection((err, connection) => {
@@ -149,36 +130,39 @@ let controller = {
     });
   },
   getAllUsers: (req, res, next) => {
-      const queryParams = req.query
-      console.log(queryParams)
+    const queryParams = req.query;
+    console.log(queryParams);
 
-      const{firstName, isActive} = queryParams
-      console.log(`firstName = ${firstName} isActive = ${isActive}` )
-      let queryString = 'SELECT * FROM user'
-      if (firstName || isActive) {
-        queryString += ' WHERE '
-        
-        if (firstName) {
-          queryString += `firstName LIKE '%${firstName}%'`
-        }
-        if (firstName && isActive) {
-          queryString += ` AND `
-        }
-        if (isActive) {
-          queryString += `isActive = ${isActive}`
-        }
-        
+    const { firstName, isActive } = queryParams;
+    console.log(`firstName = ${firstName} isActive = ${isActive}`);
+    let queryString = "SELECT * FROM user";
+    if (firstName || isActive) {
+      queryString += " WHERE ";
+
+      if (firstName) {
+        queryString += `firstName LIKE '%${firstName}%'`;
       }
-      queryString += ';'
-      console.log(queryString)
+      if (firstName && isActive) {
+        queryString += ` AND `;
+      }
+      if (isActive) {
+        queryString += `isActive = ${isActive}`;
+      }
+    }
+    queryString += ";";
+    console.log(queryString);
 
-      // firstName = '%' + firstName + '%'
+    // firstName = '%' + firstName + '%'
 
     dbconnection.getConnection((err, connection) => {
-      if (err) {next(err)};
+      if (err) {
+        next(err);
+      }
       // if querystring is finished place it below instead of the hardcoded query
       connection.query(queryString, (err, result, fields) => {
-        if (err) {next(err)};
+        if (err) {
+          next(err);
+        }
         connection.release();
 
         res.status(200).json({
@@ -218,7 +202,7 @@ let controller = {
                   result: result[0],
                 });
 
-                res.end()
+                res.end();
               }
             );
           } else {
@@ -226,7 +210,7 @@ let controller = {
               status: 404,
               message: "User does not exist",
             });
-          }    
+          }
         }
       );
     });
@@ -241,8 +225,11 @@ let controller = {
 
     dbconnection.getConnection((err, connection) => {
       if (err) throw err;
-      
-      connection.query("SELECT COUNT(id) as count FROM user WHERE id = ?", [id], (err, result, fields) => {
+
+      connection.query(
+        "SELECT COUNT(id) as count FROM user WHERE id = ?",
+        [id],
+        (err, result, fields) => {
           if (err) throw err;
 
           if (result[0].count === 0) {
@@ -251,31 +238,54 @@ let controller = {
               message: "User does not exist",
             });
           } else {
-            connection.query("SELECT * FROM user WHERE id = ?", [id], (err, result, fields) => {
-              if (err) throw err;
+            connection.query(
+              "SELECT * FROM user WHERE id = ?",
+              [id],
+              (err, result, fields) => {
+                if (err) throw err;
 
-            const user = {
-              ...result[0],
-              ...newUser
-            }
+                const user = {
+                  ...result[0],
+                  ...newUser,
+                };
 
-            let {firstName, lastName, emailAdress, password, city, street, phoneNumber} = user
+                let {
+                  firstName,
+                  lastName,
+                  emailAdress,
+                  password,
+                  city,
+                  street,
+                  phoneNumber,
+                } = user;
 
+                connection.query(
+                  "UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = ? WHERE id = ?",
+                  [
+                    firstName,
+                    lastName,
+                    emailAdress,
+                    password,
+                    street,
+                    city,
+                    phoneNumber,
+                    id,
+                  ],
+                  (err, result, fields) => {
+                    if (err) throw err;
 
-            connection.query("UPDATE user SET firstName = ?, lastName = ?, emailAdress = ?, password = ?, street = ?, city = ?, phoneNumber = ? WHERE id = ?", [firstName,lastName,emailAdress,password,street,city, phoneNumber,id], (err,result,fields)=> {
-              if (err) throw err;
+                    connection.release();
 
-                  connection.release()
+                    res.status(200).json({
+                      status: 200,
+                      result: user,
+                    });
 
-                  res.status(200).json({
-                    status: 200,
-                    result: user
-                  })
-
-                  res.end()
-
-                })
-            })
+                    res.end();
+                  }
+                );
+              }
+            );
           }
         }
       );
@@ -334,6 +344,5 @@ let controller = {
     });
   },
 };
-
 
 module.exports = controller;
