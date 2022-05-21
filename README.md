@@ -65,7 +65,7 @@ The references below, you can paste them behind te url the link above will lead 
 
 ```http
 1. POST /api/user
-2. GET /api/aut/login
+2. POST /api/aut/login
 ```
 | Nr    | Parameter | Type     | Description                | Locked with login |
 | :---- | :-------- | :------- | :------------------------- | :---- |
