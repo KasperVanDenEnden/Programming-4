@@ -3,37 +3,65 @@
 ![image](https://img.shields.io/github/downloads/KasperVanDenEnden/Programming-4/total?logo=GitHub&style=plastic) 
 ![GitHub deployments](https://img.shields.io/github/deployments/KasperVanDenEnden/Programming-4/Heroku?label=Heroku&logo=Heroku&logoColor=%23E6E6FA)
 
+## Table of Contents
+
+ - [About the API](#about-the-api)
+ - [Badges](#badges)
+    - [Packages used for production](#packages-used-for-production)
+    - [Packages used for testing](#packages-used-for-testing)
+    - [Languages](#languages)
+    - [Workenvironments](#workenvironments)
+    - [Other](#other
+ - [Visuals](#visuals)
+ - [Installation](#)
+    - [Connectiion Github with Heroku](#)
+    - [Connectie with MYSQL database](#)
+ - [Usage](#usage)
+ - [API Reference](#api-reference)
+    - [Create user and login](#create-user-and-login)
+    - [Users](#users)
+    - [Meals](#meals)
+ - [Support](#)
+ - [Roadman](#)
+ - [Contributors](#)
+ - [Authors and acknowledgment](#authors-and-acknowlegment)
+ - [License](#license)
+ - [Project status](#project-status)
 
 
-## Description
+## About the API
 In dit project is er gebruik gemaakt van javascript om een API gemaakt om "Gebruikers" en "Maaltijden" aan te maken. 
 Deze objecten worden opgeslagen in een online database en is het verder ook mogelijk deze objecten op te vragen, aan te passen en te verwijderen. Voor sommige functies moet een authenticatie plaatsvinden en moet je een "Gebruiker" zijn.
 Om de API online te zetten wordt via GitHub de API naar Heroku gedeployed. Via Postman is getest of de responses werken en via een online assertion tool is gekeken of de vereiste testcases slagen.
 
 ## Badges
-![image](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)
-![image](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
-![image](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
-![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+### Packages used for production
+![image](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![image](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
-![image](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white)
+![image](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![image](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+### Packages used for testing
 ![image](https://img.shields.io/badge/Mocha-8D6748?style=for-the-badge&logo=Mocha&logoColor=white)
 ![image](https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white)
-![image](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![image](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+### Workenvironments
+![image](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white)
+![image](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)
 ![image](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![image](https://img.shields.io/badge/Xampp-F37623?style=for-the-badge&logo=xampp&logoColor=white)
 ![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
-![image](https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E)
 ![image](https://img.shields.io/badge/Visual_Studio-5C2D91?style=for-the-badge&logo=visual%20studio&logoColor=white)
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Languages
+![image](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
+![image](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
 
+### Other
+![image](https://img.shields.io/badge/prettier-1A2C34?style=for-the-badge&logo=prettier&logoColor=F7BA3E)
 
 ## Visuals
 Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
 ## Installation
-### Connectie Github met Heroku
+### Connection Github with Heroku
 ```
  1. Maak een Heroku account.
  2. Ga naar account setting en copy de API Key.
@@ -45,7 +73,7 @@ Depending on what you are making, it can be a good idea to include screenshots o
 ```
  LET OP!!: zorg ervoor dat actions zijn toegestaan in de settings van je repository
 
-### Connectie met MYSQL database
+### Connection with MYSQL database
 ```
 1. 
 2. 
