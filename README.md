@@ -103,52 +103,30 @@ Requests kunnen worden gemaak via Postman
 The references below, you can paste them behind te url the link above will lead you to.
 #### Create user and login
 
-```http
-1. POST /api/user
-2. POST /api/aut/login
-```
-| Nr    | Parameter | Type     | Description                | Locked with login |
-| :---- | :-------- | :------- | :------------------------- | :---- |
-| 1.    | `user` | `object` | **Required**. Needs all (valid) attributes in body | False |
-| 2.    | `user` | `object` | **Required**. Valid Email & Password in body | False  |
-
+| Request Type    | End-Point |  Description                | Access |
+| :---- | :-------- |  :------------------------- | :---- |
+| POST    | /api/user |  Create user | :free: |
+| POST   | /api/aut/login |  Login using emailAdress and password  | :free:  |
 
 #### Users
 
-```http
-  1. GET /api/user
-        a. ?firstName={string}&isActive{true|false}
-  2. GET /api/user/${id}
-  3. GET /api/user/profile
-  4. PUT /api/user/${id}
-  5. DELETE /api/user/${id}
-```
+|   Nr  | End-Point |  Description                | Access |
+| :---- | :-------- |  :------------------------- | :---- |
+|  GET   | /api/user |  Get all users | :lock:  |
+|  GET  | /api/user/${id} |  Get user by id | :lock:  |
+|  GET  | /api/user/profile |  Get your profile | :lock:  |
+|  PUT  | /api/user/${id} | Update user | :lock:  |
+|  DELETE  | /api/user/${id} |  Delete user by id | :lock:  |    
 
-|   Nr  | Parameter | Type     | Description                | Locked with login |
-| :---- | :-------- | :------- | :------------------------- | :---- |
-|  1.   | `firtName` | `string` | **Not Required**. A firstname | True  |
-|  1.   | `isActive` | `boolean` | **Not Required**. true or false | True  |
-|  2.   | `id` | `int` | **Required**. Your API key | True  |
-|  3.   | `Login` | `login` | **Required**. Login is required to find a profile | True  |
-|  4.   | `id` | `int` | **Required**. Id of user to update | True  |    
-|  5.   | `id` | `int` | **Required**. Id of meal to delete | True  |
 
 #### Meals
 
-```http
-  1. POST /api/meal
-  2. GET /api/meal
-  3. GET /api/meal/${id}
-  4. DELETE /api/meal
-  
-```
-
-|  Nr   | Parameter | Type     | Description                       | Locked with login |
-| :---- | :-------- | :------- | :-------------------------------- | :--- |
-|  1.   | `id`      | `object` | **Required**. Id of meal to create | True |
-|  3.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
-|  4.   | `id`      | `int` | **Required**. Id of meal to fetch | True |
-
+|  Nr     | Parameter       | Description           | Access |
+| :----   | :--------       |  :------------------- | :---   |
+|  POST   | /api/meal       | Create new meal       | :lock: |
+|  GET    | /api/meal       | Get all meals         | :lock: |
+|  GET    | /api/meal/${id} | Get meal by id        | :lock: |
+|  DELETE | /api/meal       | Delete meal by id     | :lock: |
 
 ## Support
 Als er vragen zijn over dit project, kunt u een vraag stellen via k.vandenenden1@student.avans.nl

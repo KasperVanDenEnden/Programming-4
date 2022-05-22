@@ -8,106 +8,12 @@ const dbconnection = require("../../database/dbconnection");
 const logger = require("../config/config").logger;
 const jwtSecretKey = require("../config/config").jwtSecretKey;
 
-module.exports = {
-  login(req, res, next) {
-    dbconnection.getConnection((err, connection) => {
-      if (err) {
-        logger.error("Error getting connection from dbconnection");
-        res.status(500).json({
-          status: 500,
-          message: err.toString(),
-          datetime: new Date().toISOString(),
-        });
-      }
+const loginQuery = `SELECT * FROM user WHERE emailAdress = ?`;
+const mealByIdQuery = `SELECT * FROM meal WHERE id = ?`;
+const userByIdQuery = `SELECT * FROM user WHERE id = ?`;
 
-      if (connection) {
-        // 1. Kijk of deze useraccount bestaat.
-        connection.query(
-          "SELECT `id`, `emailAdress`, `password`, `firstName`, `lastName` FROM `user` WHERE `emailAdress` = ?",
-          [req.body.emailAdress],
-          (err, rows, fields) => {
-            connection.release();
-            if (err) {
-              logger.error("Error: ", err.toString());
-              res.status(500).json({
-                status: 500,
-                message: err.toString(),
-                datetime: new Date().toISOString(),
-              });
-            }
 
-            if (rows) {
-              console.log(rows.length)
-              // if ( rows.length === 0) {
-              //   res.status(404).json({
-              //     status: 404,
-              //     message: "User does not exist"
-              //   })
-              //   next()
-              // }
-
-              // 2. Er was een resultaat, check het password.
-              if (
-                rows &&
-                rows.length === 1 &&
-                rows[0].password == req.body.password
-              ) {
-                logger.info(
-                  "passwords DID match, sending userinfo and valid token"
-                );
-                // Extract the password from the userdata - we do not send that in the response.
-                const { password, ...userinfo } = rows[0];
-                // Create an object containing the data we want in the payload.
-                const payload = {
-                  userId: userinfo.id,
-                };
-
-                jwt.sign(
-                  payload,
-                  jwtSecretKey,
-                  { expiresIn: "12d" },
-                  function (err, token) {
-                    logger.debug("User logged in, sending: ", userinfo);
-                    res.status(200).json({
-                      statusCode: 200,
-                      results: { ...userinfo, token },
-                    });
-                  }
-                );
-              } else {
-                if (rows.length === 0) {
-                  res.status(404).json({
-                        status: 404,
-                        message: "User does not exist"
-                      })
-                } else {
-                  logger.info("User not found or password invalid");
-                  res.status(401).json({
-                    status: 401,
-                    message: "User not found or password invalid",
-                    datetime: new Date().toISOString(),
-                  });
-                }
-
-                
-              }
-            } else {
-              logger.info("User does not exist");
-              res.status(404).json({
-                status: 404,
-                message: "User does not exist",
-                datetime: new Date().toISOString(),
-              });
-            }
-          }
-        );
-      }
-    });
-  },
-
-  //
-  //
-  //
+const controller = {
   validateLogin(req, res, next) {
     // Verify that we receive the expected input
     let {emailAdress,password} = req.body
@@ -126,89 +32,174 @@ module.exports = {
        
       });
     }
-
-
-    try {
-      assert(
-        typeof emailAdress === "string",
-        "email must be a string."
-      );
-      assert(
-        typeof password === "string",
-        "password must be a string."
-      );
-      next();
-    } catch (ex) {
-      res.status(400).json({
-        status: 400,
-        message: ex.toString(),
-       
-      });
-    }
   },
-  loginRegex(req,res,next) {
-    const { emailAdress, password } = req.body;
+    login: (req, res, next) => {
+        const {
+            emailAdress,
+            password,
+        } = req.body;
 
-    let regexMail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    // password: eight characters including one uppercase letter, one lowercase letter, and one number or special character.
-    let regexPassword = /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
+        try {
+            assert(typeof emailAdress === 'string', 'EmailAdress must be a string');
+            assert(typeof password === 'string', 'Password must be a string');
 
-    if (!regexMail.test(emailAdress)) {
-      const error = {
-        status: 400,
-        message: "Email is not a valid format",
-      };
-      next(error);
-    }
-    logger.info("Email matched regex")
-    if (!regexPassword.test(password)) {
-      const error = {
-        status: 400,
-        message:
-          "Make sure the password contains: eight characters including one uppercase letter, one lowercase letter, and one number or special character.",
-      };
-      next(error);
-    }
-    logger.info("Password matched regex")
-    next()
-  },
+            dbconnection.getConnection((err, connection) => {
+                if (err) next(err);
 
-  //
-  //
-  //
-  validateToken(req, res, next) {
-    logger.info("validateToken called");
-    // logger.trace(req.headers)
-    // The headers should contain the authorization-field with value 'Bearer [token]'
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      logger.warn("Authorization header missing!");
-      res.status(401).json({
-        status: 401,
-        message: "Authorization header missing!",
-        datetime: new Date().toISOString(),
-      });
-    } else {
-      // Strip the word 'Bearer ' from the headervalue
-      const token = authHeader.substring(7, authHeader.length);
+                connection.query(loginQuery, emailAdress, (error, results, fields) => {
+                    connection.release();
+                    if (error) next(error);
 
-      jwt.verify(token, jwtSecretKey, (err, payload) => {
-        if (err) {
-          logger.warn("Not authorized");
-          res.status(401).json({
-            status: 401,
-            message: "Not authorized",
-            datetime: new Date().toISOString(),
-          });
+                    const user = results[0];
+
+                    if (user) {
+                        if (password === user.password) {
+                            jwt.sign({
+                                    userId: user.id
+                                },
+                                process.env.JWT_SECRET, {
+                                    expiresIn: '50d'
+                                },
+                                (err, token) => {
+                                    if (token) {
+                                        user.token = token;
+                                        res.status(200).json({
+                                            status: 200,
+                                            result: user,
+                                        });
+                                    }
+                                    if (err) next(err);
+                                });
+                        } else {
+                            res.status(400).json({
+                                status: 400,
+                                message: "Incorrect password"
+                            });
+                        }
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This emailadddress is not linked to an account"
+                        });
+                    }
+                });
+            });
+        } catch (err) {
+            res.status(400).json({
+                status: 400,
+                message: err.message,
+            });
         }
-        if (payload) {
-          logger.debug("token is valid", payload);
-          // User heeft toegang. Voeg UserId uit payload toe aan
-          // request, voor ieder volgend endpoint.
-          req.userId = payload.userId;
-          next();
+    },
+
+    validateToken: (req, res, next) => {
+        const authHeader = req.headers.authorization
+        if (authHeader) {
+            const token = authHeader.substring(7, authHeader.length)
+
+            jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+                if (err) {
+                    res.status(401).json({
+                        status: 401,
+                        message: "Unauthorized"
+                    })
+                } else {
+                    next();
+                }
+            })
+        } else {
+            res.status(401).json({
+                status: 401,
+                message: "Authorization header is missing"
+            })
         }
-      });
+    },
+
+    checkUserRights: (req, res, next) => {
+        dbconnection.getConnection((err, connection) => {
+            if (err) next(err);
+
+            const mealId = req.params.mealId;
+
+            connection.query(mealByIdQuery, mealId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                if (results[0]) {
+                    const cookId = results[0].cookId;
+
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+                    let userId;
+
+                    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                        if (err) next(err);
+                        userId = decoded.userId;
+                    });
+
+                    if (userId === cookId) {
+                        next();
+                    } else {
+                        res.status(403).json({
+                            status: 403,
+                            message: "You are not the owner of this meal"
+                        });
+                    }
+
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "This meal does not exist"
+                    });
+                }
+
+            });
+        })
+    }, 
+
+    checkUserOwnership: (req, res, next) => {
+        dbconnection.getConnection((err, connection) => {
+            if (err) next(err);
+
+            let userId = req.params.userId;
+
+            connection.query(userByIdQuery, userId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                if (results[0]) {
+                    const owner = results[0].id;
+
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+
+                    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                        if (err) next(err);
+                        userId = decoded.userId;
+                    });
+
+                    if (userId === owner) {
+                        next();
+                    } else {
+                        res.status(403).json({
+                            status: 403,
+                            message: "You are not the owner of this account"
+                        });
+                    }
+
+                } else {
+                    res.status(400).json({
+                        status: 400,
+                        message: "This user does not exist"
+                    });
+                }
+
+            });
+        })
     }
-  },
-};
+
+
+}
+
+module.exports = controller;
+
