@@ -17,7 +17,7 @@ let controller = {
       assert(typeof dateTime === "string", "dateTime must be a string");
       assert(typeof price === "string", "price must be a string");
       assert(typeof imageUrl === "string", "imageUrl must be a string");
-      assert(typeof cookId === "number", "cookId must be a number");
+      assert(typeof cookId === "bigint", "cookId must be a bigint");
 
       assert(typeof isActive === 'boolean', "isActive must be a boolean")
       assert(typeof isVega === 'boolean', "isVega must be a boolean")
