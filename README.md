@@ -11,7 +11,7 @@
     - [Packages used for testing](#packages-used-for-testing)
     - [Languages](#languages)
     - [Workenvironments](#workenvironments)
-    - [Other](#other
+    - [Other](#other)
  - [Visuals](#visuals)
  - [Installation](#)
     - [Connectiion Github with Heroku](#)
@@ -61,7 +61,11 @@ Om de API online te zetten wordt via GitHub de API naar Heroku gedeployed. Via P
 Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
 ## Installation
-### Connection Github with Heroku
+
+Zorg ervoor dat je mysql gestart hebt op XAMPP.
+Requests kunnen worden gemaak via Postman
+
+### Connection Github with your own Heroku account
 ```
  1. Maak een Heroku account.
  2. Ga naar account setting en copy de API Key.
@@ -73,16 +77,24 @@ Depending on what you are making, it can be a good idea to include screenshots o
 ```
  LET OP!!: zorg ervoor dat actions zijn toegestaan in de settings van je repository
 
-### Connection with MYSQL database
+### Connection with own MYSQL database
 ```
-1. 
-2. 
-3.
+1. Installeer CMDER als je dit nog niet hebt en open de folder van het project: cd/{route naar folder}
+2. Type in: mysql -u root
+3. Type in: show databases. Er worden default databases getoond
+4. Type in: CREATE DATABSE {vul een naam in}
+5. Type in: use {gekozen naam}
+6. Type in: source share-a-meal
+7. Pas in de .env file van het project de waarde achter DB_DATABASE aan naar {gekozen naam} van je eigen database
 ```
 
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+1. run CMDER als je die al heb geinstalleerd
+2. Download deze file en open de folder door de map te openen in de CMDER. type in: cd/{route naar folder}
+3. Type in: npm install. (deze stap kan je de volgende keren overslaan)
+4. Om het project te runnen type in: npm run dev/ Om het project lokaal te testen type in: npm run test
 
 ## API Reference
 
