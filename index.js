@@ -7,13 +7,14 @@ const res = require("express/lib/response");
 const userRouter = require('./src/routes/user.routes')
 const mealRouter = require('./src/routes/meal.routes')
 const authRouter = require('./src/routes/auth.routes')
+const logger = require("./src/config/config").logger;
 
 
 app.use(bodyParser.json());
 
 app.all("*", (req, res, next) => {
   const method = req.method;
-  console.log(`Methode ${method} angeroepen`);
+  logger.info(`Methode ${method} angeroepen`);
   next();
 });
 
@@ -40,7 +41,7 @@ app.use((err, req, res, next) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  logger.info(`Example app listening on port ${port}`);
 });
 
 module.exports = app;

@@ -4,78 +4,102 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const res = require("express/lib/response");
 const server = require("../../index");
-const assert = require('assert')
-const jwt = require('jsonwebtoken')
-const { jwtSecretKey, logger } = require('../../src/config/config')
-const dbconnection = require("../../database/dbconnection")
-
+const assert = require("assert");
+const jwt = require("jsonwebtoken");
+const { jwtSecretKey, logger } = require("../../src/config/config");
+const dbconnection = require("../../database/dbconnection");
 
 chai.should();
+chai.expect();
 chai.use(chaiHttp);
+
+let token;
+let wrongToken;
 
 /**
  * Db queries to clear and fill the test database before each test.
  */
- const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
- const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
- const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
- const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
- 
- /**
-  * Voeg een user toe aan de database. Deze user heeft id 1.
-  * Deze id kun je als foreign key gebruiken in de andere queries, bv insert meal.
-  */
-  const INSERT_USER =
+const CLEAR_MEAL_TABLE = "DELETE IGNORE FROM `meal`;";
+const CLEAR_PARTICIPANTS_TABLE = "DELETE IGNORE FROM `meal_participants_user`;";
+const CLEAR_USERS_TABLE = "DELETE IGNORE FROM `user`;";
+const CLEAR_DB =
+  CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE;
+
+/**
+ * Voeg een user toe aan de database. Deze user heeft id 1.
+ * Deze id kun je als foreign key gebruiken in de andere queries, bv insert meal.
+ */
+const INSERT_USER =
   "INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES" +
   '(1, "first", "last", "first@server.nl", "Secret#1", "street", "city"),' +
   '(2, "second", "last", "second@server.nl", "Secret#2", "street", "city"),' +
   '(3, "third", "last", "third@server.nl", "Secret#3", "street", "city"),' +
   '(4, "fourth", "last", "fourth@server.nl", "Secret#4", "street", "city"),' +
   '(5, "fifth", "last", "fifth@server.nl", "Secret#5", "street", "city");';
- /**
-  * Query om twee meals toe te voegen. Let op de cookId, die moet matchen
-  * met een bestaande user in de database.
-  */
- const INSERT_MEALS =
-     'INSERT INTO `meal` (`id`, `name`, `description`, `imageUrl`, `dateTime`, `maxAmountOfParticipants`, `price`, `cookId`) VALUES' +
-     "(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1)," +
-     "(2, 'Meal B', 'description', 'image url', NOW(), 5, 6.50, 1);"
-
-
-
+/**
+ * Query om twee meals toe te voegen. Let op de cookId, die moet matchen
+ * met een bestaande user in de database.
+ */
+const INSERT_MEALS =
+  "INSERT INTO `meal` (`id`, `name`, `description`, `imageUrl`, `dateTime`, `maxAmountOfParticipants`, `price`, `cookId`) VALUES" +
+  "(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1)," +
+  "(2, 'Meal B', 'description', 'image url', NOW(), 5, 6.50, 1);";
 
 // UC-101 Login
 describe("UC-101 Login /api/aut/user", () => {
+  before((done) => {
+    token = jwt.sign(
+      {
+        userId: 1,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "10d",
+      }
+    );
 
-    beforeEach((done) => {
-        logger.debug("beforeEach called");
-        // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
-        dbconnection.getConnection(function (err, connection) {
-          if (err) throw err; // not connected!
+    wrongToken = jwt.sign(
+      {
+        userId: 2,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "10d",
+      }
+    );
+    done()
     
-          // Use the connection
-          connection.query(
-            CLEAR_DB + INSERT_USER,
-            function (error, results, fields) {
-              // When done with the connection, release it.
-              connection.release();
-    
-              // Handle error after the release.
-              if (error) throw error;
-              // Let op dat je done() pas aanroept als de query callback eindigt!
-              logger.debug("beforeEach done");
-              done();
-            }
-          );
-        });
-      });
+  });
+
+  beforeEach((done) => {
+    logger.debug("beforeEach called");
+    // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+    dbconnection.getConnection(function (err, connection) {
+      if (err) throw err; // not connected!
+
+      // Use the connection
+      connection.query(
+        CLEAR_DB + INSERT_USER,
+        function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
+
+          // Handle error after the release.
+          if (error) throw error;
+          // Let op dat je done() pas aanroept als de query callback eindigt!
+          logger.debug("beforeEach done");
+          done();
+        }
+      );
+    });
+  });
 
   it("TC-101-1 Valid input is missing", (done) => {
     chai
       .request(server)
       .post("/api/aut/login")
       .send({
-        emailAdress: "m.vandullemen@server.nl",
+        emailAdress: "first@server.nl",
         password: "",
       })
       .end((req, res) => {
@@ -145,20 +169,36 @@ describe("UC-101 Login /api/aut/user", () => {
   });
 
   it("TC-101-5 Succesfull login", (done) => {
-    chai
-      .request(server)
-      .post("/api/aut/login")
-      .send({
-        emailAdress: "kda@test.nl",
-        password: "Secret12",
-      })
-      .end((req, res) => {
-        res.should.be.an("object");
-        let { status, result } = res.body;
-        status.should.equals(200);
-        result.should.be.an("object")
-       
-        done();
-      });
+    chai.request(server)
+    .post('/api/auth/login')
+    .send({
+        emailAdress: "name@server.nl",
+        password: "secret",
+    })
+    .end((err, res) => {
+        assert.ifError(err)
+        res.should.have.status(200)
+        res.should.be.an('object')
+
+        res.body.should.be
+            .an('object')
+            .that.has.all.keys('status', 'result')
+
+        let {
+            status,
+            result
+        } = res.body
+        expect(status).to.equal(200)
+        expect(result.id).to.equal(1)
+        expect(result.firstName).to.equal('first');
+        expect(result.lastName).to.equal('last');
+        expect(result.isActive).to.equal(1);
+        expect(result.emailAdress).to.equal('first@server.nl');
+        expect(result.password).to.equal('Secret#3');
+        expect(result.street).to.equal('street');
+        expect(result.token).to.equal(token);
+        
+        done()
+    })
   });
 });

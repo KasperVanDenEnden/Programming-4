@@ -17,10 +17,10 @@ const authController = require("../controllers/auth.controller")
     router.get("/api/user/:id", authController.validateToken, userController.getUserById);
     
     // update user by id
-    router.put("/api/user/:id", authController.validateToken, userController.validateUserUpdate, userController.updateUser);
+    router.put("/api/user/:id", authController.validateToken,authController.checkUserOwnership, userController.validateUserUpdate, userController.updateUser);
     
     // delete user by id
-    router.delete("/api/user/:id", authController.validateToken, userController.deleteUser);
+    router.delete("/api/user/:id", authController.validateToken,authController.checkUserOwnership, userController.deleteUser);
 
     // get user profile when logged in
     router.get("/api/user/profile",  authController.validateToken, userController.getProfile);

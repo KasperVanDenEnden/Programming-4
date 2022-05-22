@@ -351,10 +351,30 @@ let controller = {
     });
   },
   getProfile: (req, res) => {
-    res.status(200).json({
-      code: 200,
-      message: "This feature has not ben realised yet",
-    });
+    dbconnection.getConnection((err, connection) => {
+      if (err) next(err);
+
+      const authHeader = req.headers.authorization;
+      const token = authHeader.substring(7, authHeader.length);
+      let userId;
+
+      jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+          if (err) next(err);
+          userId = decoded.userId;
+      });
+
+      const getUserInfoQuery = `SELECT * FROM user WHERE id = ?`;
+
+      connection.query(getUserInfoQuery, userId, (error, results, fields) => {
+          connection.release();
+          if (error) next(error);
+
+          res.status(200).json({
+              status: 200,
+              result: results[0]
+          })
+      });
+  });
   },
 };
 

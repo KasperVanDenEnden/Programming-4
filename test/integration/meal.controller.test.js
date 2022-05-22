@@ -1,4 +1,5 @@
 process.env.DB_DATABASE = process.env.DB_DATABASE || "2101787";
+
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const res = require("express/lib/response");
@@ -11,6 +12,7 @@ const dbconnection = require("../../database/dbconnection")
 let database = [];
 
 chai.should();
+chai.expect();
 chai.use(chaiHttp);
 
 /**
@@ -73,10 +75,8 @@ describe("UC-301 create meal /api/meal", () => {
     chai
       .request(server)
       .post("/api/meal")
-      .set
-      // 'authorization',
-      // 'Bearer ' + jwt.sign({ id: 1 }, jwtSecretKey)
-      ()
+      .set(  'authorization',
+      'Bearer ' + jwt.sign({ id: 1 }, jwtSecretKey))
       .send({
         isActive: true,
         isVega: true,
@@ -93,68 +93,101 @@ describe("UC-301 create meal /api/meal", () => {
         res.should.be.an("object");
         let { status, message } = res.body;
         status.should.equals(400);
-        message.should.be.a("string").that.equals("Name shoul be a string");
+        message.should.be.a("string").that.equals("Name must be a string");
         done();
       });
   });
 
-  it("TC-301-2 Not logged in", () => {
-    chai
-      .request(server)
-      .post("/api/meal")
-      .send({
-        isActive: true,
-        isVega: true,
-        isVegan: false,
-        isToTakeHome: true,
-        dateTime: "07-12",
-        price: "2,99",
-        imageUrl: "http://test.url",
-        CookId: 1,
-        name: "Patat",
-        description: "Van de beste aardappelen gemaakt!",
-      })
-      .end((req, res) => {
-        res.should.be.an("object");
-        let { status, message } = res.body;
-        status.should.equals(401);
-        message.should.be
-          .a("string")
-          .that.equals("Authorization header missing!");
-      });
+  it("TC-301-2 Not logged in", (done) => {
+    chai.request(server)
+    .post('/api/meal')
+    .send({
+        name: "patat",
+        description: "Lekkere friet",
+        isActive: 1,
+        isVega: 1,
+        isVegan: 1,
+        isToTakeHome: 1,
+        dateTime: "2022/05/22",
+        imageUrl: "testurl.nl",
+        price: "6.75"
+    })
+    .end((err, res) => {
+        assert.ifError(err)
+        res.should.have.status(401)
+        res.should.be.an('object')
+
+        res.body.should.be
+            .an('object')
+            .that.has.all.keys('status', 'message')
+
+        let {
+            status,
+            message
+        } = res.body
+        status.should.be.a('number').that.equals(401)
+        message.should.be.a('string').that.equals('Authorization header is missing')
+        done()
+    })
   });
 
   it("TC-301-3 Meal has been added", (done) => {
-    chai
-      .request(server)
-      .post("/api/meal")
-      .set
-      // 'authorization',
-      // 'Bearer ' + jwt.sign({ id: 1 }, jwtSecretKey)
-      ()
-      .send({
-        isActive: true,
-        isVega: true,
-        isVegan: false,
-        isToTakeHome: true,
-        dateTime: "07-12",
-        price: "2,99",
-        imageUrl: "http://test.url",
-        CookId: 1,
-        name: "Patat",
-        description: "Van de beste aardappelen gemaakt!",
-      })
-      .end((req, res) => {
-        res.should.be.an("object");
-        let { status, result } = res.body;
+    chai.request(server)
+    .post('/api/meal')
+    .set(
+        'authorization',
+        'Bearer ' + token
+    )
+    .send({
+        "name": "Spaghetti Bolognese",
+        "description": "Dé pastaklassieker bij uitstek.",
+        "isActive": "1",
+        "isVega": "1",
+        "isVegan": "1",
+        "isToTakeHome": "1",
+        "dateTime": "2022-05-15T20:07:10.870Z",
+        "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+        "price": "6.75"
+    })
+    .end((err, res) => {
+        assert.ifError(err)
+        res.should.have.status(201)
+        res.should.be.an('object')
 
-        console.log(res.body);
+        res.body.should.be
+            .an('object')
+            .that.has.all.keys('status', 'result')
 
-        //store id that can be used for the delete test later on
-        userId = result.id;
+        let createdMeal = res.body.result.id
 
-        status.should.equals(201);
-        done();
+        let {
+            status,
+            result
+        } = res.body
+
+        status.should.be.a('number').that.equals(201)
+
+        expect(result.id).to.equal(createdMeal);
+        expect(result.name).to.equal('Spaghetti Bolognese')
+        expect(result.description).to.equal('Dé pastaklassieker bij uitstek.')
+        expect(result.isActive).to.equal('1')
+        expect(result.isVega).to.equal('1')
+        expect(result.isVegan).to.equal('1')
+        expect(result.isToTakeHome).to.equal('1')
+        expect(result.dateTime).to.equal('2022-05-15T20:07:10.870Z')
+        expect(result.imageUrl).to.equal('https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg')
+        expect(result.price).to.equal('6.75')
+
+        expect(result.cook.id).to.equal(1);
+        expect(result.cook.firstName).to.equal('first');
+        expect(result.cook.lastName).to.equal('last');
+        expect(result.cook.isActive).to.equal(1);
+        expect(result.cook.emailAdress).to.equal('name@server.nl');
+        expect(result.cook.password).to.equal('secret');
+        expect(result.cook.street).to.equal('street');
+        expect(result.cook.city).to.equal('city');
+
+        done()
       });
   });
 });
@@ -186,15 +219,15 @@ describe("UC-302 update meal /api/meal/:id", () => {
       });
 
 
-  // it('TC-302-1 required field is missing', () => {
+  // it('TC-302-1 required field is missing', (done) => {
   // })
-  // it('TC-302-2 Not logged in', () => {
+  // it('TC-302-2 Not logged in', (done) => {
   // })
-  // it('TC-302-3 Not the owner of the data', () => {
+  // it('TC-302-3 Not the owner of the data', (done) => {
   // })
-  // it('TC-302-4 Meal does not exist', () => {
+  // it('TC-302-4 Meal does not exist', (done) => {
   // })
-  // it('TC-302-5 Meal has been updated', () => {
+  // it('TC-302-5 Meal has been updated', (done) => {
   // })
 });
 
@@ -223,7 +256,7 @@ describe("UC-303 Fetching list of meals /api/meal", () => {
         });
       });
 
-  it("TC-303-1 List of meals is returned", () => {
+  it("TC-303-1 List of meals is returned", (done) => {
     chai
       .request(server)
       .get("/api/movie")
@@ -247,7 +280,7 @@ describe("UC-303 Fetching list of meals /api/meal", () => {
       });
   });
 
-  it("TC-303-1 List of meals is returned ", () => {
+  it("TC-303-1-a List of meals is returned *2 ", (done) => {
     chai
       .request(server)
       .get("/api/movie")
@@ -271,7 +304,29 @@ describe("UC-303 Fetching list of meals /api/meal", () => {
       });
   });
 
-  it("TC-303-1 List of meals is returned", () => {
+  it("TC-303-1-b List of meals is returned *0", (done) => {
+    dbconnection.getConnection(function (err, connection) {
+        if (err) throw err; // not connected!
+  
+        // Use the connection
+        connection.query(
+          CLEAR_DB + INSERT_USER,
+          function (error, results, fields) {
+            // When done with the connection, release it.
+            connection.release();
+  
+            // Handle error after the release.
+            if (error) throw error;
+            // Let op dat je done() pas aanroept als de query callback eindigt!
+            logger.debug("beforeEach done");
+        
+          }
+        );
+      });
+
+
+
+
     chai
       .request(server)
       .get("/api/movie")
@@ -288,9 +343,7 @@ describe("UC-303 Fetching list of meals /api/meal", () => {
 
         const { statusCode, results } = res.body;
         statusCode.should.be.an("number");
-        results.should.be.an("array").that.has.length(2);
-        results[0].name.should.equal("Meal A");
-        results[0].id.should.equal(1);
+        results.should.be.an("array").that.has.length(0);
         done();
       });
   });
@@ -323,9 +376,9 @@ describe("UC-304 Fetching details of a meal /api/meal/:id", () => {
 
 
 
-  it("TC-304-1 Meal does not exist", () => {});
+  it("TC-304-1 Meal does not exist", (done) => { done();});
 
-  it("TC-304-2 Details of meal is returned", () => {});
+  it("TC-304-2 Details of meal is returned", (done) => { done();});
 });
 
 // UC-305
@@ -356,13 +409,13 @@ describe("UC-305 delete meal /api/meal/:id", () => {
 
   // TC-305-1 expires
 
-  it("TC-305-2 Not logged in", () => {});
+  it("TC-305-2 Not logged in", (done) => { done();});
 
-  it("TC-305-3 Not the owner of the data", () => {});
+  it("TC-305-3 Not the owner of the data", (done) => { done();});
 
-  it("TC-305-4 Meal does not exist", () => {});
+  it("TC-305-4 Meal does not exist", (done) => { done();});
 
-  it("TC-305-5 Meal has been deleted", () => {});
+  it("TC-305-5 Meal has been deleted", (done) => { done();});
 });
 
 
