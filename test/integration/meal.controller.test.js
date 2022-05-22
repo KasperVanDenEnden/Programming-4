@@ -9,16 +9,80 @@ chai.use(chaiHttp)
 
 // UC-301
 describe('UC-301 create meal /api/meal', () => {
-    describe('TC-301-1 required field is missing', () => {
-
+    describe('TC-301-1 required field is missing', (done) => {
+        chai.request(server)
+            .post("/api/meal")
+            .send({
+                isActive:true,
+                isVega:true,
+                isVegan:false,
+                isToTakeHome:true,
+                dateTime:"07-12",
+                price:"2,99",
+                imageUrl:"http://test.url",
+                CookId:1,
+                // name:"Patat",
+                description:"Van de beste aardappelen gemaakt!"
+            })
+            .end((req, res) => {
+                res.should.be.an("object");
+                let { status, message } = res.body;
+                status.should.equals(400);
+                message.should.be.a("string").that.equals("Name shoul be a string");
+                done();
+            });
     })
 
     describe('TC-301-2 Not logged in', () => {
-
+        chai.request(server)
+        .post("/api/meal")
+        .send({
+            isActive:true,
+                isVega:true,
+                isVegan:false,
+                isToTakeHome:true,
+                dateTime:"07-12",
+                price:"2,99",
+                imageUrl:"http://test.url",
+                CookId:1,
+                name:"Patat",
+                description:"Van de beste aardappelen gemaakt!"
+        })
+        .end((req,res) => {
+            res.should.be.an("object")
+            let {status, message} = res.body
+            status.should.equals(401)
+            message.should.be.a("string").that.equals("User not found or password invalid")
+        })
     })
 
-    describe('TC-301-3 Meal has been added', () => {
+    describe('TC-301-3 Meal has been added', (done) => {
+        chai.request(server)
+            .post("/api/meal")
+            .send({
+                isActive:true,
+                isVega:true,
+                isVegan:false,
+                isToTakeHome:true,
+                dateTime:"07-12",
+                price:"2,99",
+                imageUrl:"http://test.url",
+                CookId:1,
+                name:"Patat",
+                description:"Van de beste aardappelen gemaakt!"
+            })
+            .end((req, res) => {
+                res.should.be.an("object");
+                let { status, result } = res.body;
 
+              console.log(res.body)
+
+                //store id that can be used for the delete test later on
+                userId = result.id;
+
+                status.should.equals(201);
+                done();
+            });
     })
 })
 

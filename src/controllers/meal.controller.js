@@ -1,6 +1,8 @@
 const res = require("express/lib/response");
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
+const logger = require("../config/config").logger;
+const { is } = require("express/lib/request");
 
 let meals = [];
 let id = 0;
@@ -33,18 +35,42 @@ let controller = {
     }
   },
   addMeal: (req, res) => {
-    let meal = req.body;
-    id++;
-    meal = {
-      id,
-      ...meal,
-    };
-    meals.push(meal);
-    console.log(meals);
-    res.status(201).json({
-      status: 201,
-      result: meal,
-    });
+   dbconnection.getConnection((err,connection)=> {
+    if (err) throw err;
+      const {name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome} = req.body
+
+      connection.query( "SELECT COUNT(name) as count FROM user WHERE name = ? AND description =? AND price = ? AND dateTime = ?", [name, description, price, dateTime], (err,result,fields) =>{
+        if (err) throw err;
+
+        if (result[0] === 1) {
+          //meal bestaal al
+          res.status(404).json({
+            status:404,
+            message: "Meal already exists"
+          })
+        } else {
+            connection.query("INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome) VALUES (?,?,?,?,?,?,?,?,?,?)", [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome], (err,result,fields) => {
+              if (err) throw err;
+
+              connection.query("Select from user WHERE name = ? AND description =? AND price = ? AND dateTime = ?", [name, description, price, dateTime], (err,result,fields) => {
+                if (err) throw err;
+
+                connection.release();
+
+                res.status(201).json({
+                  status: 201,
+                  result: result[0],
+                });
+                res.end();
+              })
+
+            })
+
+
+        }
+
+      })
+   })
   },
   getAllMeals: (req, res, next) => {
     const queryParams = req.query;

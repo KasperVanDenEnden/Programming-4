@@ -1,5 +1,6 @@
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
+const logger = require("../config/config").logger;
 
 let controller = {
   
@@ -13,7 +14,7 @@ let controller = {
       assert(typeof city === "string", "City must be a string");
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
-
+      
       next();
     } catch (err) {
       const error = {
@@ -52,8 +53,7 @@ let controller = {
 
     let regexMail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     // password: eight characters including one uppercase letter, one lowercase letter, and one number or special character.
-    let regexPassword =
-      /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"/;
+    let regexPassword = /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
 
     if (!regexMail.test(emailAdress)) {
       const error = {
@@ -62,7 +62,7 @@ let controller = {
       };
       next(error);
     }
-
+    logger.info("Email matched regex")
     if (!regexPassword.test(password)) {
       const error = {
         status: 400,
@@ -71,6 +71,7 @@ let controller = {
       };
       next(error);
     }
+    logger.info("Password matched regex")
     next()
 
   },
@@ -336,7 +337,6 @@ let controller = {
       );
     });
   },
-
   getProfile: (req, res) => {
     res.status(200).json({
       code: 200,

@@ -11,6 +11,8 @@ let userId;
 
 // UC-201 Register as new user
 describe("UC-201 Register as new user - POST /api/user", () => {
+
+
     it("TC-201-1 Required input is missing", (done) => {
         chai.request(server)
             .post("/api/user")
@@ -20,7 +22,7 @@ describe("UC-201 Register as new user - POST /api/user", () => {
           street: "Heinoord 7",
           city: "Breda",
           emailAdress: "test@test.nl",
-          password: "secret",
+          password: "Secreth2",
             })
             .end((req, res) => {
                 res.should.be.an("object");
@@ -41,7 +43,7 @@ describe("UC-201 Register as new user - POST /api/user", () => {
           street: "Heinoord 7",
           city: "Breda",
           emailAdress: "m.vandullemen@server.nl", //email that exists
-          password: "secret",
+          password: "Secreth2",
             })
             .end((req, res) => {
                 res.should.be.an("object");
@@ -59,7 +61,7 @@ describe("UC-201 Register as new user - POST /api/user", () => {
           street: "Heinoord 7",
           city: "Breda",
           emailAdress: "test@test.nl",
-          password: "secret",
+          password: "Secreth2",
             })
             .end((req, res) => {
                 res.should.be.an("object");

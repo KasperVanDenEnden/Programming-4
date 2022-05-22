@@ -14,6 +14,6 @@ router.get("/api/meal", mealController.getAllMeals);
 router.get("/api/meal/:id", mealController.getMealById);
 
 // delete meal by id
-router.delete("/api/meal/:id", authController.validateToken, mealController.deleteMeal);
+router.delete("/api/meal/:id",  authController.validateToken, mealController.deleteMeal);
 
 module.exports = router;
