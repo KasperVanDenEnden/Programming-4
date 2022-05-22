@@ -24,9 +24,11 @@ let controller = {
       assert(typeof isVegan === 'boolean', "isVegan must be a boolean")
       assert(typeof isToTakeHome === 'boolean', "isToTakeHome must be a boolean")
       
+      logger.info(`Alle meal inputs hebben de juiste type`)
 
       next()
     } catch (err) {
+      logger.error(`Niet alle meal inputs hebben de juiste type`)
       const error = {
         status:400,
         message: err.message
@@ -43,7 +45,7 @@ let controller = {
         if (err) throw err;
 
         if (result[0] === 1) {
-          //meal bestaal al
+          logger.error("Meal already exists")
           res.status(404).json({
             status:404,
             message: "Meal already exists"
@@ -51,12 +53,12 @@ let controller = {
         } else {
             connection.query("INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome) VALUES (?,?,?,?,?,?,?,?,?,?)", [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome], (err,result,fields) => {
               if (err) throw err;
-
+              logger.info("New meal is added to the database")
               connection.query("Select from user WHERE name = ? AND description =? AND price = ? AND dateTime = ?", [name, description, price, dateTime], (err,result,fields) => {
                 if (err) throw err;
 
                 connection.release();
-
+                logger.info("New meal will be returned")
                 res.status(201).json({
                   status: 201,
                   result: result[0],
@@ -74,12 +76,12 @@ let controller = {
   },
   getAllMeals: (req, res, next) => {
     const queryParams = req.query;
-    console.log(queryParams);
+    logger.info(queryParams);
     // const {} = queryParams
-    // console.log(` = ${} &  = ${}`  )
+    // logger.info(` = ${} &  = ${}`  )
 
     let queryString = `SELECT id, name FROM meal;`;
-    console.log(queryString);
+    logger.info(queryString);
 
     dbconnection.getConnection((err, connection) => {
       if (err) {
@@ -91,7 +93,7 @@ let controller = {
           next(err);
         }
         connection.release();
-
+        logger.info("All meals that have been found are returned")
         res.status(200).json({
           status: 200,
           result: result,
@@ -114,12 +116,13 @@ let controller = {
         (err, result, fields) => {
           if (err) throw err;
           if (result[0].count === 1) {
+            logger.info(`Meal with ${id} has been found`)
             connection.query(
               "SELECT * FROM meal WHERE id = ?",
               [id],
               (err, result, fields) => {
                 connection.release();
-
+                logger.info(`Meal with ${id} is returned`)
                 res.status(200).json({
                   status: 200,
                   result: result[0],
@@ -129,6 +132,7 @@ let controller = {
               }
             );
           } else {
+            logger.error("Meal does not exist")
             res.status(404).json({
               status: 404,
               message: "Meal does not exist",
@@ -153,20 +157,23 @@ let controller = {
         [id],
         (err, result, fields) => {
           if (result[0].count === 0) {
+            logger.error("Meal does not exist")
             res.status(404).json({
               status: 404,
               message: "Meal does not exist",
             });
           } else {
+            logger.info(`Meal with ${id} has been found`)
             connection.query(
               "DELETE FROM meal WHERE id = ?",
               [id],
               (err, result, fields) => {
                 if (err) throw err;
-
+                
                 connection.release();
 
                 if (result.affectedRows === 1) {
+                  logger.info(`Meal with ${id} is deleted`)
                   res.status(200).json({
                     status: 200,
                     message: "Meal has been deleted",

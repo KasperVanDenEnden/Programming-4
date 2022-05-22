@@ -8,7 +8,7 @@ const authController = require("../controllers/auth.controller")
     // authController.validateToken,
 
     // create user
-    router.post("/api/user", userController.validateUser, userController.addUser);
+    router.post("/api/user", userController.validateUser, userController.addUserRegex, userController.addUser);
     
     // get all users
     router.get("/api/user", authController.validateToken, userController.getAllUsers);

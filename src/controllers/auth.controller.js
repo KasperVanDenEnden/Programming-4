@@ -19,6 +19,7 @@ module.exports = {
           datetime: new Date().toISOString(),
         });
       }
+
       if (connection) {
         // 1. Kijk of deze useraccount bestaat.
         connection.query(
@@ -35,8 +36,16 @@ module.exports = {
               });
             }
 
-
             if (rows) {
+              console.log(rows.length)
+              // if ( rows.length === 0) {
+              //   res.status(404).json({
+              //     status: 404,
+              //     message: "User does not exist"
+              //   })
+              //   next()
+              // }
+
               // 2. Er was een resultaat, check het password.
               if (
                 rows &&
@@ -66,12 +75,21 @@ module.exports = {
                   }
                 );
               } else {
-                logger.info("User not found or password invalid");
-                res.status(401).json({
-                  status: 401,
-                  message: "User not found or password invalid",
-                  datetime: new Date().toISOString(),
-                });
+                if (rows.length === 0) {
+                  res.status(404).json({
+                        status: 404,
+                        message: "User does not exist"
+                      })
+                } else {
+                  logger.info("User not found or password invalid");
+                  res.status(401).json({
+                    status: 401,
+                    message: "User not found or password invalid",
+                    datetime: new Date().toISOString(),
+                  });
+                }
+
+                
               }
             } else {
               logger.info("User does not exist");
@@ -92,13 +110,31 @@ module.exports = {
   //
   validateLogin(req, res, next) {
     // Verify that we receive the expected input
+    let {emailAdress,password} = req.body
+
+    if (emailAdress.length == 0) {
+      res.status(400).json({
+        status: 400,
+        message: "Email is missing",
+       
+      });
+    }
+    if (password.length == 0) {
+      res.status(400).json({
+        status: 400,
+        message: "Password is missing",
+       
+      });
+    }
+
+
     try {
       assert(
-        typeof req.body.emailAdress === "string",
+        typeof emailAdress === "string",
         "email must be a string."
       );
       assert(
-        typeof req.body.password === "string",
+        typeof password === "string",
         "password must be a string."
       );
       next();
@@ -109,6 +145,32 @@ module.exports = {
        
       });
     }
+  },
+  loginRegex(req,res,next) {
+    const { emailAdress, password } = req.body;
+
+    let regexMail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    // password: eight characters including one uppercase letter, one lowercase letter, and one number or special character.
+    let regexPassword = /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
+
+    if (!regexMail.test(emailAdress)) {
+      const error = {
+        status: 400,
+        message: "Email is not a valid format",
+      };
+      next(error);
+    }
+    logger.info("Email matched regex")
+    if (!regexPassword.test(password)) {
+      const error = {
+        status: 400,
+        message:
+          "Make sure the password contains: eight characters including one uppercase letter, one lowercase letter, and one number or special character.",
+      };
+      next(error);
+    }
+    logger.info("Password matched regex")
+    next()
   },
 
   //

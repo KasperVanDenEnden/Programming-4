@@ -1,5 +1,6 @@
 const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
+const { info } = require("console");
 const logger = require("../config/config").logger;
 
 let controller = {
@@ -14,9 +15,10 @@ let controller = {
       assert(typeof city === "string", "City must be a string");
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
-      
+      logger.info("Alle user inputs zijn strings");
       next();
     } catch (err) {
+      logger.error("Niet alle user inputs zijn strings");
       const error = {
         status: 400,
         message: err.message,
@@ -37,9 +39,10 @@ let controller = {
       assert(typeof emailAdress === "string", "Email must be a string");
       assert(typeof password === "string", "Password must be a string");
       assert(typeof isActive === "boolean", "isActive must be a boolean");
-
+      logger.info("Alle user inputs voor update zijn strings");
       next();
     } catch (err) {
+      logger.error("Niet alle user inputs voor update zijn strings");
       const error = {
         status: 400,
         message: err.message,
@@ -56,6 +59,7 @@ let controller = {
     let regexPassword = /^(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
 
     if (!regexMail.test(emailAdress)) {
+      logger.error("Email is not a valid format")
       const error = {
         status: 400,
         message: "Email is not a valid format",
@@ -64,6 +68,7 @@ let controller = {
     }
     logger.info("Email matched regex")
     if (!regexPassword.test(password)) {
+      logger.error("Make sure the password contains: eight characters including one uppercase letter, one lowercase letter, and one number or special character.")
       const error = {
         status: 400,
         message:
@@ -89,7 +94,7 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 1) {
-            // error email bestaat al
+            logger.error("Email is not unique!");
             res.status(409).json({
               status: 409,
               message: "Email is not unique!",
@@ -100,7 +105,7 @@ let controller = {
               [firstName, lastName, street, city, emailAdress, password],
               (err, result, fields) => {
                 if (err) throw err;
-
+                logger.info("User wordt aangemaakt");
                 connection.query(
                   "SELECT * FROM user WHERE emailAdress = ?",
                   emailAdress,
@@ -114,7 +119,7 @@ let controller = {
                     } else {
                       result[0].isActive = false;
                     }
-
+                    logger.info("Aangemaakte user wordt teruggegeven");
                     res.status(201).json({
                       status: 201,
                       result: result[0],
@@ -132,10 +137,10 @@ let controller = {
   },
   getAllUsers: (req, res, next) => {
     const queryParams = req.query;
-    console.log(queryParams);
+    logger.info(queryParams);
 
     const { firstName, isActive } = queryParams;
-    console.log(`firstName = ${firstName} isActive = ${isActive}`);
+    logger.info(`firstName = ${firstName} isActive = ${isActive}`);
     let queryString = "SELECT * FROM user";
     if (firstName || isActive) {
       queryString += " WHERE ";
@@ -151,7 +156,7 @@ let controller = {
       }
     }
     queryString += ";";
-    console.log(queryString);
+    logger.info(queryString);
 
     // firstName = '%' + firstName + '%'
 
@@ -165,7 +170,7 @@ let controller = {
           next(err);
         }
         connection.release();
-
+        logger.info("User met eventuele zoekvelden wordt teruggeven");
         res.status(200).json({
           status: 200,
           result: result,
@@ -190,6 +195,8 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 1) {
+
+            logger.info(`User met het gevraagde ${id} is gevonden`)
             connection.query(
               "SELECT * FROM user WHERE id = ?",
               [id],
@@ -198,6 +205,7 @@ let controller = {
 
                 connection.release();
 
+                logger.info(`User met ${id} wordt teruggegeven`)
                 res.status(200).json({
                   status: 200,
                   result: result[0],
@@ -207,6 +215,7 @@ let controller = {
               }
             );
           } else {
+            logger.error("User does not exist")
             res.status(404).json({
               status: 404,
               message: "User does not exist",
@@ -234,17 +243,19 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 0) {
+            logger.errow("User does not exist")
             res.status(400).json({
               status: 400,
               message: "User does not exist",
             });
           } else {
+            logger.info(`User met het gevraagde ${id} is gevonden`)
             connection.query(
               "SELECT * FROM user WHERE id = ?",
               [id],
               (err, result, fields) => {
                 if (err) throw err;
-
+                
                 const user = {
                   ...result[0],
                   ...newUser,
@@ -274,9 +285,9 @@ let controller = {
                   ],
                   (err, result, fields) => {
                     if (err) throw err;
-
+                    logger.info(`User met het ${id} is geupdate`)
                     connection.release();
-
+                    logger.info(`Geupdate user met het ${id} wordt teruggegeven`)
                     res.status(200).json({
                       status: 200,
                       result: user,
@@ -309,6 +320,7 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 0) {
+            logger.error("User does not exist")
             res.status(400).json({
               status: 400,
               message: "User does not exist",
@@ -323,6 +335,7 @@ let controller = {
                 connection.release();
 
                 if (result.affectedRows === 1) {
+                  logger.info(`User met ${id} is deleted`)
                   res.status(200).json({
                     status: 200,
                     message: "User has been deleted",
