@@ -7,6 +7,24 @@ const { is } = require("express/lib/request");
 let meals = [];
 let id = 0;
 
+// queries
+const mealExists = "SELECT COUNT(name) as count FROM user WHERE name = ? AND description =? AND price = ? AND dateTime = ?";
+const addMealQuery = "INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome) VALUES (?,?,?,?,?,?,?,?,?,?)";
+
+const allMealsQuery = "SELECT id, name FROM meal;";
+const ExistMealByIdQuery = "SELECT COUNT(id) as count FROM meal WHERE id = ?";
+const mealByIdQuery = "SELECT * FROM meal WHERE id = ?";
+
+const updateMealQuery = "UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?"; 
+const deleteMealQuery = "DELETE FROM meal WHERE id = ?";
+
+const userByIdQuery = "SELECT * FROM user WHERE id = ?";
+
+const getParticipantsByMealIdQuery = "SELECT * FROM meal_participants_user WHERE mealId = ?";
+const deleteParticipantByIds = "DELETE FROM meal_participants_user WHERE mealId = ? AND userId = ?"; 
+
+
+
 let controller = {
   validateMeal:(req,res,next) =>{
     let {isActive,isVega,isVegan,isToTakeHome,dateTime,price,imageUrl,cookId,name,description} = req.body
@@ -41,7 +59,7 @@ let controller = {
     if (err) throw err;
       const {name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome} = req.body
 
-      connection.query( "SELECT COUNT(name) as count FROM user WHERE name = ? AND description =? AND price = ? AND dateTime = ?", [name, description, price, dateTime], (err,result,fields) =>{
+      connection.query( mealExists , [name, description, price, dateTime], (err,result,fields) =>{
         if (err) throw err;
 
         if (result[0] === 1) {
@@ -51,10 +69,10 @@ let controller = {
             message: "Meal already exists"
           })
         } else {
-            connection.query("INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome) VALUES (?,?,?,?,?,?,?,?,?,?)", [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome], (err,result,fields) => {
+            connection.query( addMealQuery , [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome], (err,result,fields) => {
               if (err) throw err;
               logger.info("New meal is added to the database")
-              connection.query("Select from user WHERE name = ? AND description =? AND price = ? AND dateTime = ?", [name, description, price, dateTime], (err,result,fields) => {
+              connection.query( mealExists , [name, description, price, dateTime], (err,result,fields) => {
                 if (err) throw err;
 
                 connection.release();
@@ -77,18 +95,13 @@ let controller = {
   getAllMeals: (req, res, next) => {
     const queryParams = req.query;
     logger.info(queryParams);
-    // const {} = queryParams
-    // logger.info(` = ${} &  = ${}`  )
-
-    let queryString = `SELECT id, name FROM meal;`;
-    logger.info(queryString);
-
+ 
     dbconnection.getConnection((err, connection) => {
       if (err) {
         next(err);
       }
       // if querystring is finished place it below instead of the hardcoded query
-      connection.query(queryString, (err, result, fields) => {
+      connection.query( getAllMeals , (err, result, fields) => {
         if (err) {
           next(err);
         }
@@ -111,14 +124,14 @@ let controller = {
       if (err) throw err;
 
       connection.query(
-        "SELECT COUNT(id) as count FROM meal WHERE id = ?",
+        ExistMealByIdQuery,
         [id],
         (err, result, fields) => {
           if (err) throw err;
           if (result[0].count === 1) {
             logger.info(`Meal with ${id} has been found`)
             connection.query(
-              "SELECT * FROM meal WHERE id = ?",
+              mealByIdQuery,
               [id],
               (err, result, fields) => {
                 connection.release();
@@ -153,7 +166,7 @@ let controller = {
       if (err) throw err;
 
       connection.query(
-        "SELECT COUNT(id) as count FROM meal WHERE id = ?",
+        ExistMealByIdQuery,
         [id],
         (err, result, fields) => {
           if (result[0].count === 0) {
@@ -165,7 +178,7 @@ let controller = {
           } else {
             logger.info(`Meal with ${id} has been found`)
             connection.query(
-              "DELETE FROM meal WHERE id = ?",
+              deleteMealQuery,
               [id],
               (err, result, fields) => {
                 if (err) throw err;
@@ -188,6 +201,125 @@ let controller = {
       );
     });
   },
+  updateMeal: (req, res, next) => {
+    dbconnection.getConnection((err, connection) => {
+        connection.release();
+        if (err) next(err);
+
+        const meal = req.body;
+        const mealId = req.params.mealId;
+        if (isNaN(mealId)) {
+            next();
+        }
+
+        connection.query(mealByIdQuery, mealId, (error, results, fields) => {
+            connection.release();
+            if (error) next(error);
+
+            let newMeal = {
+                ...results[0],
+                ...meal,
+            }
+
+            const newMealDataInput = [newMeal.isActive, newMeal.isVega, newMeal.isVegan, newMeal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+
+            connection.query(updateMealQuery, newMealDataInput, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                res.status(200).json({
+                    status: 200,
+                    result: newMeal,
+                });
+            });
+        });
+    });
+  },
+  participate: (req, res, next) => {
+    dbconnection.getConnection((err, connection) => {
+        connection.release();
+        if (err) next(err);
+
+        const mealId = req.params.mealId;
+        let userId;
+
+        const authHeader = req.headers.authorization;
+        const token = authHeader.substring(7, authHeader.length);
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            userId = decoded.userId;
+        });
+
+        connection.query(mealByIdQuery, mealId, (error, results, fields) => {
+            connection.release();
+            if (error) next(error);
+
+            if (results[0]) {
+
+                const maxParticipants = results.maxAmountOfParticipants;
+
+                connection.query(getParticipantsByMealIdQuery, mealId, (error, results, fields) => {
+                    connection.release();
+                    if (error) next(error);
+
+                    let maxAmountOfParticipantsReached = false;
+                    const numberOfparticipants = results.length;
+                    if (numberOfparticipants === maxParticipants) {
+                        maxAmountOfParticipantsReached = true;
+                    }
+
+                    let alreadyParticipating = false;
+                    results.forEach(element => {
+                        if (element.userId === userId) {
+                            alreadyParticipating = true;
+                        }
+                    });
+
+                    if (alreadyParticipating) {
+                        connection.query(deleteParticipantByIds, [mealId, userId], (error, results, fields) => {
+                            connection.release();
+                            if (error) next(error);
+                            res.status(200).json({
+                                status: 200,
+                                result: {
+                                    'currentlyParticipating': false,
+                                    'currentAmountOfParticipants': numberOfparticipants - 1
+                                }
+                            })
+                        })
+                    } else {
+                        connection.query(addParticpantQuery, [mealId, userId], (error, results, fields) => {
+                            connection.release();
+                            if (error) next(error);
+
+                            if (maxAmountOfParticipantsReached) {
+                                res.status(401).json({
+                                    status: 401,
+                                    message: "This meal has reached its maximum amount of participants"
+                                })
+                            } else {
+                                res.status(200).json({
+                                    status: 200,
+                                    result: {
+                                        'currentlyParticipating': true,
+                                        'currentAmountOfParticipants': numberOfparticipants + 1
+                                    }
+                                })
+                            }
+
+                        })
+                    }
+                })
+
+            } else {
+                res.status(404).json({
+                    status: 404,
+                    message: "This meal does not exist"
+                })
+            }
+        })
+    })
+  }
 };
 
 module.exports = controller;
