@@ -3,24 +3,25 @@ const dbconnection = require("../../database/dbconnection");
 const assert = require("assert");
 const logger = require("../config/config").logger;
 const { is } = require("express/lib/request");
+const jwt = require("jsonwebtoken");
 
 let meals = [];
 let id = 0;
 
 // queries
-const mealExists = "SELECT COUNT(name) as count FROM user WHERE name = ? AND description =? AND price = ? AND dateTime = ?";
-const addMealQuery = "INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome) VALUES (?,?,?,?,?,?,?,?,?,?)";
+const mealExists = "SELECT COUNT(name) as count FROM meal WHERE name = ? AND description = ? AND price = ? AND dateTime = ?";
+const addMealQuery = "INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome, maxAmountOfParticipants) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
 const allMealsQuery = "SELECT id, name FROM meal;";
 const ExistMealByIdQuery = "SELECT COUNT(id) as count FROM meal WHERE id = ?";
 const mealByIdQuery = "SELECT * FROM meal WHERE id = ?";
+const mealByNameQuery = "SELECT * FROM meal WHERE name = ?";
 
 const updateMealQuery = "UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?"; 
 const deleteMealQuery = "DELETE FROM meal WHERE id = ?";
 
-const userByIdQuery = "SELECT * FROM user WHERE id = ?";
-
 const getParticipantsByMealIdQuery = "SELECT * FROM meal_participants_user WHERE mealId = ?";
+const addParticpantQuery = "INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)";
 const deleteParticipantByIds = "DELETE FROM meal_participants_user WHERE mealId = ? AND userId = ?"; 
 
 
@@ -57,7 +58,7 @@ let controller = {
   addMeal: (req, res) => {
    dbconnection.getConnection((err,connection)=> {
     if (err) throw err;
-      const {name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome} = req.body
+      const {name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome, maxAmountOfParticipants} = req.body
 
       connection.query( mealExists , [name, description, price, dateTime], (err,result,fields) =>{
         if (err) throw err;
@@ -69,10 +70,10 @@ let controller = {
             message: "Meal already exists"
           })
         } else {
-            connection.query( addMealQuery , [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome], (err,result,fields) => {
+            connection.query( addMealQuery , [name,description,price,dateTime,imageUrl,cookId,isActive,isVega,isVegan,isToTakeHome, maxAmountOfParticipants], (err,result,fields) => {
               if (err) throw err;
               logger.info("New meal is added to the database")
-              connection.query( mealExists , [name, description, price, dateTime], (err,result,fields) => {
+              connection.query( mealByNameQuery , [name], (err,result,fields) => {
                 if (err) throw err;
 
                 connection.release();
@@ -101,7 +102,7 @@ let controller = {
         next(err);
       }
       // if querystring is finished place it below instead of the hardcoded query
-      connection.query( getAllMeals , (err, result, fields) => {
+      connection.query( allMealsQuery , (err, result, fields) => {
         if (err) {
           next(err);
         }
@@ -202,37 +203,88 @@ let controller = {
     });
   },
   updateMeal: (req, res, next) => {
+    id = req.params.id;
+    const newMeal = req.body;
+
+    if (isNaN(id)) {
+      return next();
+    }
+
     dbconnection.getConnection((err, connection) => {
-        connection.release();
-        if (err) next(err);
+      if (err) throw err;
 
-        const meal = req.body;
-        const mealId = req.params.mealId;
-        if (isNaN(mealId)) {
-            next();
-        }
+      connection.query(
+        "SELECT COUNT(id) as count FROM meal WHERE id = ?",
+        [id],
+        (err, result, fields) => {
+          if (err) throw err;
 
-        connection.query(mealByIdQuery, mealId, (error, results, fields) => {
-            connection.release();
-            if (error) next(error);
-
-            let newMeal = {
-                ...results[0],
-                ...meal,
-            }
-
-            const newMealDataInput = [newMeal.isActive, newMeal.isVega, newMeal.isVegan, newMeal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
-
-            connection.query(updateMealQuery, newMealDataInput, (error, results, fields) => {
-                connection.release();
-                if (error) next(error);
-
-                res.status(200).json({
-                    status: 200,
-                    result: newMeal,
-                });
+          if (result[0].count === 0) {
+            logger.errow("Meal does not exist")
+            res.status(400).json({
+              status: 400,
+              message: "Meal does not exist",
             });
-        });
+          } else {
+            logger.info(`Meal met het gevraagde ${id} is gevonden`)
+            connection.query(
+              mealByIdQuery,
+              [id],
+              (err, result, fields) => {
+                if (err) throw err;
+                
+                const meal = {
+                  ...result[0],
+                  ...newMeal,
+                };
+
+                let {
+                    isActive,
+                    isVega,
+                    isVegan,
+                    isToTakeHome,
+                    dateTime,
+                    maxAmountOfParticipants,
+                    price,
+                    imageUrl,
+                    name,
+                    description,
+                    id,
+                } = meal;
+
+                connection.query(
+                  updateMealQuery,
+                  [
+                    isActive,
+                    isVega,
+                    isVegan,
+                    isToTakeHome,
+                    dateTime,
+                    maxAmountOfParticipants,
+                    price,
+                    imageUrl,
+                    name,
+                    description,
+                    id,
+                  ],
+                  (err, result, fields) => {
+                    if (err) throw err;
+                    logger.info(`Meal met het ${id} is geupdate`)
+                    connection.release();
+                    logger.info(`Geupdate meal met het ${id} wordt teruggegeven`)
+                    res.status(200).json({
+                      status: 200,
+                      result: meal,
+                    });
+
+                    res.end();
+                  }
+                );
+              }
+            );
+          }
+        }
+      );
     });
   },
   participate: (req, res, next) => {
@@ -240,7 +292,7 @@ let controller = {
         connection.release();
         if (err) next(err);
 
-        const mealId = req.params.mealId;
+        const mealId = req.params.id;
         let userId;
 
         const authHeader = req.headers.authorization;

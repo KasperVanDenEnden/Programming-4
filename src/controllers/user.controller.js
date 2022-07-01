@@ -92,6 +92,21 @@ let controller = {
       next(error);
     }
   },
+  checkMail: (req, res, next) => {
+    let user = req.body;
+    let {
+        emailAdress
+    } = user;
+    try {
+        assert(typeof emailAdress === 'string', 'Email address must be a string')
+        next();
+    } catch (err) {
+        res.status(400).json({
+            status: 400,
+            message: err.message
+        })
+    }
+  },
   addUserRegex: (req, res, next) => {
     const { emailAdress, password } = req.body;
 
@@ -397,16 +412,16 @@ let controller = {
 
       const authHeader = req.headers.authorization;
       const token = authHeader.substring(7, authHeader.length);
-      let userId;
+      let id;
 
       jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
           if (err) next(err);
-          userId = decoded.userId;
+          id = decoded.userId;
       });
 
       const getUserInfoQuery = `SELECT * FROM user WHERE id = ?`;
 
-      connection.query(getUserInfoQuery, userId, (error, results, fields) => {
+      connection.query(getUserInfoQuery, id, (error, results, fields) => {
           connection.release();
           if (error) next(error);
 
