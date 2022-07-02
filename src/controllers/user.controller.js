@@ -62,7 +62,7 @@ let controller = {
           } else {
               res.status(400).json({
                   status: 400,
-                  message: "Please enter a valid phone number"
+                  message: "PhoneNumber is not valid."
               });
           }
       } else {

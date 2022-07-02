@@ -220,7 +220,7 @@ let controller = {
           if (err) throw err;
 
           if (result[0].count === 0) {
-            logger.errow("Meal does not exist")
+            logger.error("Meal does not exist")
             res.status(400).json({
               status: 400,
               message: "Meal does not exist",

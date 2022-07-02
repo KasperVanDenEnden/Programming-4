@@ -289,121 +289,107 @@
 //       });
 //   });
 //   it("TC-202-2 Show two users", (done) => {
-//     dbconnection.getConnection(function (err, connection) {
-//       if (err) throw err; // not connected!
-
-//       // Use the connection
-//       connection.query(
-//         "DELETE FROM user WHERE id LIKE (1,2,3)",
-//         function (error, result, fields) {
-//           // When done with the connection, release it.
-//           connection.release();
-
-//           // Handle error after the release.
-//           if (error) throw error;
-//           // Let op dat je done() pas aanroept als de query callback eindigt!
-//           logger.debug("before done");
-//         }
-//       );
-//     });
-
-//     chai
-//       .request(server)
-//       .get("/api/meal")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
-
-//         res.should.have.status(200);
-//         res.should.be.an("object");
-
-//         res.body.should.be.an("object").that.has.all.keys("result", "status");
-
-//         const { status, result } = res.body;
-//         status.should.be.an("number");
-//         result.should.be.an("array").that.has.length(2);
-
-//         done();
-//       });
+//     chai.request(server)
+//                 .get("/api/user?limit=2")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .end((req, res) => {
+//                     res.body.should.be.an("object");
+//                     let { status, result } = res.body;
+//                     status.should.equals(200);
+//                     result.should.be.an("array");
+//                     result.should.have.length(2);
+//                     done();
+//                 });
 //   });
 //   it("TC-202-3 Show users using a searchterm with non-existing name", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/user?name=NoFood")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
-
-//         res.should.have.status(200);
-//         res.should.be.an("object");
-
-//         res.body.should.be.an("object").that.has.all.keys("result", "status");
-
-//         const { status, result } = res.body;
-//         status.should.be.an("number");
-//         result.should.be.an("array").that.has.length(0);
-//         done();
-//       });
+//     chai.request(server)
+//                 .get("/api/user?firstName=test")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .end((req, res) => {
+//                     let { status, result } = res.body;
+//                     res.body.should.be.an("object");
+//                     status.should.equals(200);
+//                     result.should.be.an("array");
+//                     result.should.have.length(0);
+//                     done();
+//                 });
 //   });
 
 //   it("TC-202-4 Show users using a searchterm with isActive status of true", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/meal?isActive=false")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
+//     chai.request(server)
+//                 .get("/api/user?isActive=false")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .end((req, res) => {
+//                     res.body.should.be.an("object");
+//                     let { status, result } = res.body;
+//                     status.should.equals(200);
+//                     assert.deepEqual(result, []);
 
-//         res.should.have.status(200);
-//         res.should.be.an("array");
-
-//         res.body.should.be.an("object").that.has.all.keys("result", "status");
-
-//         const { status, result } = res.body;
-//         status.should.be.an("number");
-//         result.should.be.an("array").that.has.length(0);
-//         done();
-//       });
+//                     done();
+//                 });
 //   });
 
 //   it("TC-202-5 Show users using a searchterm with isActive status of true", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/meal?isActive=false")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
+//     chai.request(server)
+//                 .get("/api/user?isActive=true")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .end((req, res) => {
+//                     res.body.should.be.an("object");
+//                     let { status, result } = res.body;
+//                     status.should.equals(200);
+//                     assert.deepEqual(result, [
+//                         {
+//                             id: 1,
+//                             firstName: "first",
+//                             lastName: "last",
+//                             isActive: true,
+//                             emailAdress: "test@server.nl",
+//                             phoneNumber: "-",
+//                             roles: ["editor", "guest"],
+//                             street: "street",
+//                             city: "city",
+//                         },
+//                         {
+//                             id: 2,
+//                             firstName: "first2",
+//                             lastName: "last2",
+//                             isActive: true,
+//                             emailAdress: "test2@server.nl",
+//                             phoneNumber: "-",
+//                             roles: ["editor", "guest"],
+//                             street: "street2",
+//                             city: "city2",
+//                         },
+//                     ]);
 
-//         res.should.have.status(200);
-//         res.should.be.an("array");
-
-//         res.body.should.be.an("object").that.has.all.keys("result", "status");
-
-//         const { status, result } = res.body;
-//         status.should.be.an("number");
-//         result.should.be.an("array").that.has.length(0);
-//         done();
-//       });
+//                     done();
+//                 });
 //   });
 
 //   it("TC-202-6 Show users using a searchterm with existing name", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/meal?firstName=Second")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
+//     chai.request(server)
+//                 .get("/api/user?firstName=first")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .end((req, res) => {
+//                     res.body.should.be.an("object");
+//                     let { status, result } = res.body;
+//                     status.should.equals(200);
+//                     assert.deepEqual(result, [
+//                         {
+//                             id: 1,
+//                             firstName: "first",
+//                             lastName: "last",
+//                             isActive: true,
+//                             emailAdress: "test@server.nl",
+//                             phoneNumber: "-",
+//                             roles: ["editor", "guest"],
+//                             street: "street",
+//                             city: "city",
+//                         },
+//                     ]);
 
-//         res.should.have.status(200);
-//         res.should.be.an("array");
-
-//         res.body.should.be.an("object").that.has.all.keys("result", "status");
-
-//         const { status, result } = res.body;
-//         status.should.be.an("number");
-//         result.should.be.an("array");
-//         done();
-//       });
+//                     done();
+//                 });
 //   });
 // });
 
@@ -453,30 +439,30 @@
 //   });
 
 //   it("TC-203-2 Valid token and user exists", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/user/profile")
-//       .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
-//       .end((err, res) => {
-//         assert.ifError(err);
-//         res.should.have.status(200);
-//         res.should.be.an("object");
-//         res.body.should.be.an("object").that.has.all.keys("status", "result");
+//     // chai
+//     //   .request(server)
+//     //   .get("/api/user/profile")
+//     //   .set("authorization", "Bearer " + jwt.sign({ id: 1 }, jwtSecretKey))
+//     //   .end((err, res) => {
+//     //     assert.ifError(err);
+//     //     res.should.have.status(200);
+//     //     res.should.be.an("object");
+//     //     res.body.should.be.an("object").that.has.all.keys("status", "result");
 
-//         let { status, result } = res.body;
+//     //     let { status, result } = res.body;
 
-//         expect(status).to.equal(200);
-//         expect(result.id).to.equal(1);
-//         expect(result.firstName).to.equal("first");
-//         expect(result.lastName).to.equal("last");
-//         expect(result.isActive).to.equal(1);
-//         expect(result.emailAdress).to.equal("name@server.nl");
-//         expect(result.password).to.equal("secret");
-//         expect(result.street).to.equal("street");
-//         expect(result.city).to.equal("city");
+//     //     expect(status).to.equal(200);
+//     //     expect(result.id).to.equal(1);
+//     //     expect(result.firstName).to.equal("first");
+//     //     expect(result.lastName).to.equal("last");
+//     //     expect(result.isActive).to.equal(1);
+//     //     expect(result.emailAdress).to.equal("name@server.nl");
+//     //     expect(result.password).to.equal("secret");
+//     //     expect(result.street).to.equal("street");
+//     //     expect(result.city).to.equal("city");
 
-//         done();
-//       });
+//     //     done();
+//     //   });
 //   });
 // });
 
@@ -596,8 +582,29 @@
 //         done();
 //       });
 //   });
-//   // it("TC-205-2 Invalid postal code", (done));
-//   // it("TC-205-3 Invalid phone number", (done));
+//     it("TC-205-3 Invalid phone number", (done) => {
+//         chai.request(server)
+//             .put("/api/user/1")
+//             .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//             .send({
+//                 firstName: "Klaas",
+//                 lastName: "Tilburg",
+//                 isActive: true,
+//                 emailAdress: "ktilburg@holland.nl",
+//                 password: "dmG!F]!!6cUwK7JQ",
+//                 phoneNumber: "phone",
+//                 roles: "editor,guest",
+//                 street: "Hopstraat",
+//                 city: "Amsterdam",
+//             })
+//             .end((req, res) => {
+//                 res.body.should.be.an("object");
+//                 let { status, message } = res.body;
+//                 status.should.equals(400);
+//                 message.should.be.a("string").that.equals("PhoneNumber is not valid.");
+//                 done();
+//             });
+//     });
 //   it("TC-205-4 User doesn't exists", (done) => {
 //     chai
 //       .request(server)
@@ -617,7 +624,27 @@
 //         done();
 //       });
 //   });
-//   // it("TC-204-5 Not logged in");
+//   it("TC-205-5 Not logged in", (done) => {
+//     chai.request(server)
+//         .put("/api/user/1")
+//         .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, "test"))
+//         .send({
+//             firstName: "Klaas",
+//             lastName: "Tilburg",
+//             emailAdress: "ktilburg@holland.com",
+//             password: "dmG!F]!!6cUwK7JQ",
+//             phoneNumber: "0638719633",
+//             street: "Hopstraat",
+//             city: "Amsterdam",
+//         })
+//         .end((req, res) => {
+//             res.body.should.be.an("object");
+//             let { status, message } = res.body;
+//             status.should.equals(401);
+//             message.should.be.a("string").that.equals("Unauthorized");
+//             done();
+//         });
+//     });
 //   it("TC-205-6 User has been modified successfully", (done) => {
 //     chai
 //       .request(server)

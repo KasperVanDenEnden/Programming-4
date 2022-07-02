@@ -221,6 +221,24 @@
 // describe("UC-302 update meal /api/meal/:id", () => {
 
 //     beforeEach((done) => {
+//         token = jwt.sign({
+//                 userId: 1
+//             },
+//             process.env.JWT_SECRET, {
+//                 expiresIn: '100d'
+//             });
+
+//         wrongToken = jwt.sign({
+//                 userId: 2
+//             },
+//             process.env.JWT_SECRET, {
+//                 expiresIn: '100d'
+//             });
+//         done()
+//     })
+
+
+//     beforeEach((done) => {
 //         logger.debug("beforeEach called");
 //         // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
 //         dbconnection.getConnection(function (err, connection) {
@@ -228,7 +246,7 @@
     
 //           // Use the connection
 //           connection.query(
-//             CLEAR_DB + INSERT_USER,
+//             CLEAR_DB + INSERT_USER + INSERT_MEALS,
 //             function (error, results, fields) {
 //               // When done with the connection, release it.
 //               connection.release();
@@ -244,16 +262,117 @@
 //       });
 
 
-//   // it('TC-302-1 required field is missing', (done) => {
-//   // })
-//   // it('TC-302-2 Not logged in', (done) => {
-//   // })
+//   it('TC-302-1 required field is missing', (done) => {
+//     chai.request(server)
+//                 .put("/api/meal/1")
+//                 .set("authorization", "Bearer " + jwt.sign({ userId: 1 }, jwtSecretKey))
+//                 .send({
+//                     //missing name
+//                     description: "De pastaklassieker bij uitstek.",
+//                     isActive: true,
+//                     isVega: true,
+//                     isVegan: true,
+//                     isToTakeHome: true,
+//                     imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//                     maxAmountOfParticipants: 6,
+//                     price: 2.5,
+//                 })
+//                 .end((req, res) => {
+//                     res.should.be.an("object");
+//                     let { status, message } = res.body;
+//                     status.should.equals(400);
+//                     message.should.be.a("string").that.equals("Name must be a string");
+//                     done();
+//                 });
+//   })
+//   it('TC-302-2 Not logged in', (done) => {
+//     chai.request(server)
+//     .put('/api/meal/1')
+//     .set(
+//         'authorization',
+//         'Bearer ' + jwt.sign({ userId: 1 }, "test")
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10       
+//     })
+//     .end((err, res) => {
+//         res.body.should.be.an("object");
+//         let { status, message } = res.body;
+//         status.should.equals(401);
+//         // message.should.be.a("string").that.equals("Unauthorized");
+//         done()
+//     });
+//   })
 //   // it('TC-302-3 Not the owner of the data', (done) => {
 //   // })
-//   // it('TC-302-4 Meal does not exist', (done) => {
-//   // })
-//   // it('TC-302-5 Meal has been updated', (done) => {
-//   // })
+//   it('TC-302-4 Meal does not exist', (done) => {
+//     chai.request(server)
+//     .put('/api/meal/50')
+//     .set(
+//         'authotization',
+//         'Bearer' + token
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10
+//     })
+//     .end((err,res) => {
+//         // res.body.schould.be.an("object");
+//         let {status, message} = res.body;
+//         status.should.equals(401);
+//         // message.should.be.a("string").that.equals("Meal does not exist");
+//     })
+//     done();
+//   })
+//   it('TC-302-5 Meal has been updated', (done) => {
+//     chai.request(server)
+//     .put('/api/meal/1')
+//     .set(
+//         'authotization',
+//         'Bearer' + token
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10
+//     })
+//     .end((err,res) => {
+//         // res.body.schould.be.an("object");
+//         let {status, message} = res.body;
+//         status.should.equals(200);
+//         // message.should.be.a("string").that.equals("Meal has been deleted");
+//     })
+
+
+
+//   })
 // });
 
 // // UC-303
@@ -279,53 +398,19 @@
 //             }
 //           );
 //         });
-//       });
+//       }); 
 
-//   it("TC-303-1 List of meals is returned", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/movie")
-//       .end((err, res) => {
-//         assert.ifError(err);
-
-//         res.should.have.status(200);
-//         res.should.be.an("object");
-
-//         res.body.should.be
-//           .an("object")
-//           .that.has.all.keys("results", "statusCode");
-
-//         const { statusCode, results } = res.body;
-//         statusCode.should.be.an("number");
-//         results.should.be.an("array").that.has.length(2);
-//         results[0].name.should.equal("Meal A");
-//         results[0].id.should.equal(1);
-//         done();
-//       });
-//   });
-
-//   it("TC-303-1-a List of meals is returned *2 ", (done) => {
-//     chai
-//       .request(server)
-//       .get("/api/movie")
-//       .end((err, res) => {
-//         assert.ifError(err);
-
-//         res.should.have.status(200);
-//         res.should.be.an("object");
-
-//         res.body.should.be
-//           .an("object")
-//           .that.has.all.keys("results", "statusCode");
-
-//         const { statusCode, results } = res.body;
-//         statusCode.should.be.an("number");
-//         results.should.be.an("array").that.has.length(2);
-//         results[0].name.should.equal("Meal A");
-//         results[0].id.should.equal(1);
-//         done();
-//       });
-//   });
+//       it("TC-303-1 Return list of meals", (done) => {
+//         chai.request(server)
+//             .get("/api/meal")
+//             .end((req, res) => {
+//                 res.should.be.an("object");
+//                 let { status, result } = res.body;
+//                 status.should.equals(200);
+//                 result.should.be.an('array');
+//                 done();
+//             });
+//     });
 
 // });
 
@@ -354,8 +439,6 @@
 //         });
 //       });
 
-
-
 //   it("TC-304-1 Meal does not exist", (done) => { 
     
 //     chai.request(server)
@@ -368,7 +451,7 @@
 //                     done();
 //                 });
 //   });
-// //   "(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1),"
+
 //   it("TC-304-2 Details of meal is returned", (done) => { 
     
 //     chai.request(server)
@@ -417,13 +500,103 @@
 
 //   // TC-305-1 expires
 
-//   it("TC-305-2 Not logged in", (done) => { done();});
+//   it("TC-305-2 Not logged in", (done) => { 
+//     chai.request(server)
+//     .post('/api/meal/1')
+//     .set(
+//         'authorization',
+//         'Bearer ' + jwt.sign({ userId: 1 }, "test")
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10
+        
+        
+       
+//     })
+//     .end((err, res) => {
+//         res.body.should.be.an("object");
+//         let { status, message } = res.body;
+//         status.should.equals(401);
+//         // message.should.be.a("string").that.equals("Unauthorized");
 
-//   it("TC-305-3 Not the owner of the data", (done) => { done();});
+//         done()
+//     });
+//   });
 
-//   it("TC-305-4 Meal does not exist", (done) => { done();});
+// //   it("TC-305-3 Not the owner of the data", (done) => {done();});
 
-//   it("TC-305-5 Meal has been deleted", (done) => { done();});
+//   it("TC-305-4 Meal does not exist", (done) => {
+//     chai.request(server)
+//     .post('/api/meal/50')
+//     .set(
+//         'authotization',
+//         'Bearer' + token
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10
+//     })
+//     .end((err,res) => {
+//         // res.body.schould.be.an("object");
+//         let {status, message} = res.body;
+//         status.should.equals(401);
+//         // message.should.be.a("string").that.equals("Meal does not exist");
+//     })
+//     done();
+
+//    });
+
+//   it("TC-305-5 Meal has been deleted", (done) => { 
+
+//     chai.request(server)
+//     .delete('/api/meal/1')
+//     .set(
+//         'authotization',
+//         'Bearer' + token
+//     )
+//     .send({
+//         isActive: true,
+//         isVega: true,
+//         isVegan: true,
+//         isToTakeHome: true,
+//         dateTime: "07-12",
+//         price: "7.00",
+//         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+//         cookId: 1,
+//         name: "Spaghetti Bolognese",
+//         description: "Dé pastaklassieker bij uitstek.",
+//         maxAmountOfParticipants: 10
+//     })
+//     .end((err,res) => {
+//         // res.body.schould.be.an("object");
+//         let {status, message} = res.body;
+//         status.should.equals(200);
+//         // message.should.be.a("string").that.equals("Meal has been deleted");
+//     })
+
+
+
+
+//   });
 // });
 
 
@@ -492,7 +665,7 @@
 //                 status.should.equals(200);
 //                 assert.deepEqual(result, {
 //                     currentlyParticipating: true,
-//                     currentAmountOfParticipants: 2,
+//                     currentAmountOfParticipants: 1,
 //                 });
 
 //                 done();
@@ -561,7 +734,7 @@
 //                 let { status, result } = res.body;
 //                 status.should.equals(200);
 //                 assert.deepEqual(result, {
-//                     currentlyParticipating: false,
+//                     currentlyParticipating: true,
 //                     currentAmountOfParticipants: 1,
 //                 });
 
