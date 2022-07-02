@@ -28,27 +28,28 @@ let controller = {
     }
   },
   validateEmail: (req, res, next) => {
-    var regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+    var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     const email = req.body.emailAdress;
     if (regex.test(email)) {
         next();
     } else {
+        logger.error("Email is not a valid format")
         res.status(400).json({
             status: 400,
-            message: "Invalid email address"
+            message: "Email is not a valid format"
         })
     }
   },
   validatePassword: (req, res, next) => {
       // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
-      const regex = /^.{6,}$/;
+      const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
       const password = req.body.password;
       if (regex.test(password)) {
           next();
       } else {
           res.status(400).json({
               status: 400,
-              message: "Password too weak"
+              message: "Make sure the password contains: eight characters including one uppercase letter, one lowercase letter, and one number or special character."
           })
       }
   },
@@ -95,10 +96,13 @@ let controller = {
   checkMail: (req, res, next) => {
     let user = req.body;
     let {
-        emailAdress
+        emailAdress,
+        password
     } = user;
     try {
-        assert(typeof emailAdress === 'string', 'Email address must be a string')
+        assert(typeof emailAdress === 'string', 'Email must be a string')
+        assert(typeof password === 'string', 'Password must be a string')
+
         next();
     } catch (err) {
         res.status(400).json({

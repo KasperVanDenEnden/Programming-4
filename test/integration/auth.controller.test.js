@@ -100,13 +100,13 @@ describe("UC-101 Login /api/aut/user", () => {
       .post("/api/aut/login")
       .send({
         emailAdress: "first@server.nl",
-        password: "",
+        // password: "",
       })
       .end((req, res) => {
         res.should.be.an("object");
         let { status, message } = res.body;
         status.should.equals(400);
-        message.should.be.a("string").that.equals("Password is missing");
+        message.should.be.a("string").that.equals("Password must be a string");
         done();
       });
   });
@@ -116,7 +116,7 @@ describe("UC-101 Login /api/aut/user", () => {
       .request(server)
       .post("/api/aut/login")
       .send({
-        emailAdress: "email..test@server.nl",
+        emailAdress: "email$$$.test@server.nl",
         password: "Secret##",
       })
       .end((req, res) => {
@@ -172,8 +172,8 @@ describe("UC-101 Login /api/aut/user", () => {
     chai.request(server)
     .post('/api/auth/login')
     .send({
-        emailAdress: "name@server.nl",
-        password: "secret",
+        emailAdress: "first@server.nl",
+        password: "Secret#1",
     })
     .end((err, res) => {
         assert.ifError(err)
@@ -188,15 +188,27 @@ describe("UC-101 Login /api/aut/user", () => {
             status,
             result
         } = res.body
-        expect(status).to.equal(200)
-        expect(result.id).to.equal(1)
-        expect(result.firstName).to.equal('first');
-        expect(result.lastName).to.equal('last');
-        expect(result.isActive).to.equal(1);
-        expect(result.emailAdress).to.equal('first@server.nl');
-        expect(result.password).to.equal('Secret#3');
-        expect(result.street).to.equal('street');
-        expect(result.token).to.equal(token);
+        // expect(status).to.equal(200)
+        status.should.equals(200);
+        result.id.should.equals(1);
+        result.firstName.should.be.a("string").that.equals("first");
+        result.lastName.should.be.a("string").that.equals("last");
+        result.isActive.should.equals(1);
+        result.emailAdress.should.be.a("string").that.equals("first@server.nl");
+        result.password.should.be.a("string").that.equals("Secret#1");
+        result.street.should.be.a("string").that.equals("street");
+        result.token.should.be.a("string").that.equals(token);
+
+
+
+        // expect(result.id).to.equal(1)
+        // expect(result.firstName).to.equal('first');
+        // expect(result.lastName).to.equal('last');
+        // expect(result.isActive).to.equal(1);
+        // expect(result.emailAdress).to.equal('first@server.nl');
+        // expect(result.password).to.equal('Secret#1');
+        // expect(result.street).to.equal('street');
+        // expect(result.token).to.equal(token);
         
         done()
     })

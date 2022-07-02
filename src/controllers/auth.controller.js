@@ -51,7 +51,7 @@ const controller = {
                                             }
                                             res.status(200).json({
                                                 status: 200,
-                                                result: userOutput,
+                                                result: userOutput
                                             });
                                         }
                                         if (err) next(err);
@@ -66,7 +66,7 @@ const controller = {
                     } else {
                         res.status(404).json({
                             status: 404,
-                            message: "This emailadddress is not linked to an account"
+                            message: "User does not exist"
                         });
                     }
                 });

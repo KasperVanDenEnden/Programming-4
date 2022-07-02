@@ -5,7 +5,7 @@ const authController = require("../controllers/auth.controller")
 
 // Meal End-points
 // create a meal
-router.post("/api/meal", mealController.validateMeal,  authController.validateToken, mealController.addMeal);
+router.post("/api/meal", authController.validateToken,mealController.validateMeal,  mealController.addMeal);
 
 // get all meals
 router.get("/api/meal", mealController.getAllMeals);
