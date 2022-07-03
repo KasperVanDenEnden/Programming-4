@@ -5,14 +5,11 @@ const logger = require("../config/config").logger;
 const { is } = require("express/lib/request");
 const jwt = require("jsonwebtoken");
 
-let meals = [];
-let id = 0;
-
 // queries
 const mealExists = "SELECT COUNT(name) as count FROM meal WHERE name = ? AND description = ? AND price = ? AND dateTime = ?";
 const addMealQuery = "INSERT INTO meal (name, description, dateTime, price, imageUrl, cookId, isActive, isVega, isVegan, isToTakeHome, maxAmountOfParticipants) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
-const allMealsQuery = "SELECT id, name FROM meal;";
+const allMealsQuery = "SELECT * FROM meal;";
 const ExistMealByIdQuery = "SELECT COUNT(id) as count FROM meal WHERE id = ?";
 const mealByIdQuery = "SELECT * FROM meal WHERE id = ?";
 const mealByNameQuery = "SELECT * FROM meal WHERE name = ?";

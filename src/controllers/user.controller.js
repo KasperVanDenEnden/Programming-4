@@ -199,26 +199,33 @@ let controller = {
     const queryParams = req.query;
     logger.info(queryParams);
 
-    const { firstName, isActive } = queryParams;
-    logger.info(`firstName = ${firstName} isActive = ${isActive}`);
+    const { firstName, isActive, limit } = queryParams;
+    logger.info(`firstName = ${firstName} isActive = ${isActive} limit = ${limit}`);
     let queryString = "SELECT * FROM user";
-    if (firstName || isActive) {
-      queryString += " WHERE ";
-
+    let count = 0;
+    if (firstName || isActive || limit) {
+      if (firstName || isActive) {
+        queryString += " WHERE ";
+      }
+      
       if (firstName) {
         queryString += `firstName LIKE '%${firstName}%'`;
+        count++
       }
-      if (firstName && isActive) {
+      if (isActive && count === 1) {
         queryString += ` AND `;
       }
       if (isActive) {
         queryString += `isActive = ${isActive}`;
       }
+
+      if (limit) {
+        queryString += ` LIMIT ${limit}`;
+    }
+
     }
     queryString += ";";
     logger.info(queryString);
-
-    // firstName = '%' + firstName + '%'
 
     dbconnection.getConnection((err, connection) => {
       if (err) {
