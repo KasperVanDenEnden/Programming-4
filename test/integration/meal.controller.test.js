@@ -163,7 +163,7 @@ describe("UC-301 create meal /api/meal", () => {
         isVega: true,
         isVegan: true,
         isToTakeHome: true,
-        dateTime: "",
+        dateTime: "2022-5-5",
         price: "7.00",
         imageUrl: "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
         cookId: 1,
